@@ -4,26 +4,48 @@ interface UserFormProps {
   onAddItem: (item: {
     name: string;
     phone: string;
+    email: string;
     address: string;
     brand: string;
     model: string;
+    serialNumber: string;
+    defects: string;
+    defectsHistory: string;
   }) => void;
 }
 export default function FormService({ onAddItem }: UserFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [defects, setDefects] = useState("");
+  const [defectsHistory, setDefectsHistory] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onAddItem({ name, phone, address, brand, model });
+    onAddItem({
+      name,
+      phone,
+      email,
+      address,
+      brand,
+      model,
+      serialNumber,
+      defects,
+      defectsHistory,
+    });
     setName("");
     setPhone("");
+    setEmail("");
     setAddress("");
     setBrand("");
     setModel("");
+    setSerialNumber("");
+    setDefects("");
+    setDefectsHistory("");
   };
   return (
     <div className="container">
@@ -36,6 +58,10 @@ export default function FormService({ onAddItem }: UserFormProps) {
           <label>
             Telefone
             <input value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </label>
+          <label>
+            E-mail
+            <input value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <label>
             Endereço
@@ -53,6 +79,27 @@ export default function FormService({ onAddItem }: UserFormProps) {
           <label>
             Modelo
             <input value={model} onChange={(e) => setModel(e.target.value)} />
+          </label>
+          <label>
+            Número de série
+            <input
+              value={serialNumber}
+              onChange={(e) => setSerialNumber(e.target.value)}
+            />
+          </label>
+          <label>
+            Defeitos
+            <input
+              value={defects}
+              onChange={(e) => setDefects(e.target.value)}
+            />
+          </label>
+          <label>
+            Histórico de defeitos
+            <input
+              value={defectsHistory}
+              onChange={(e) => setDefectsHistory(e.target.value)}
+            />
           </label>
         </div>
         <button type="submit">Enviar</button>

@@ -1,14 +1,19 @@
 "use client";
-import { useState } from "react";
-import { FormItem } from "../Form-itens/FormItem";
+import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./TableService.module.css";
+
 interface UserTableProps {
   items: FormItem[];
+  onSelectedItems: (item: FormItem) => void;
 }
-export default function TableService({ items }: UserTableProps) {
+export default function TableService({
+  items,
+  onSelectedItems,
+}: UserTableProps) {
   if (!items || items.length === 0) {
     return <p>Nenhum item para exibir.</p>;
   }
+
   return (
     <div>
       <table className={styles.table}>
@@ -16,17 +21,20 @@ export default function TableService({ items }: UserTableProps) {
           <tr className={styles.tr}>
             <th className={styles.th}>Nome</th>
             <th className={styles.th}>Telefone</th>
-            <th className={styles.th}>Endereço</th>
             <th className={styles.th}>Marca</th>
             <th className={styles.th}>Modelo</th>
           </tr>
         </thead>
+
         <tbody>
           {items.map((item) => (
-            <tr className={styles.tr} key={item.id}>
+            <tr
+              className={styles.tr}
+              key={item.id}
+              onClick={() => onSelectedItems(item)}
+            >
               <td className={styles.td}>{item.name}</td>
               <td className={styles.td}>{item.phone}</td>
-              <td className={styles.td}>{item.address}</td>
               <td className={styles.td}>{item.brand}</td>
               <td className={styles.td}>{item.model}</td>
             </tr>
