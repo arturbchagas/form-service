@@ -5,6 +5,7 @@ import styles from "./TableService.module.css";
 interface UserTableProps {
   items: FormItem[];
   onSelectedItems: (item: FormItem) => void;
+  
 }
 export default function TableService({
   items,
@@ -13,6 +14,7 @@ export default function TableService({
   if (!items || items.length === 0) {
     return <p>Nenhum item para exibir.</p>;
   }
+  
 
   return (
     <div>
@@ -23,6 +25,7 @@ export default function TableService({
             <th className={styles.th}>Telefone</th>
             <th className={styles.th}>Marca</th>
             <th className={styles.th}>Modelo</th>
+            <th className={styles.th}>Status</th>
           </tr>
         </thead>
 
@@ -37,6 +40,7 @@ export default function TableService({
               <td className={styles.td}>{item.phone}</td>
               <td className={styles.td}>{item.brand}</td>
               <td className={styles.td}>{item.model}</td>
+              <td className={styles.td}>{item.status}</td>
             </tr>
           ))}
         </tbody>

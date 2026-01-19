@@ -11,6 +11,7 @@ interface UserFormProps {
     serialNumber: string;
     defects: string;
     defectsHistory: string;
+    status: 'novo'| 'aprovado'| 'reprovado' | 'pago' |'pronto'|'entregue'|'cancelado';
   }) => void;
 }
 export default function FormService({ onAddItem }: UserFormProps) {
@@ -36,6 +37,7 @@ export default function FormService({ onAddItem }: UserFormProps) {
       serialNumber,
       defects,
       defectsHistory,
+      status: "novo",
     });
     setName("");
     setPhone("");

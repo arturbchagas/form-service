@@ -10,4 +10,5 @@ export interface FormItem {
   serialNumber?: string;
   defects: string;
   defectsHistory?: string;
+  status: 'novo'| 'aprovado'| 'reprovado' | 'pago' |'pronto'|'entregue'|'cancelado';
 }

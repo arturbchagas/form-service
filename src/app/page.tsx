@@ -12,16 +12,29 @@ export default function Home() {
   const [items, setItems] = useState<FormItem[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedItems, setSelectedItems] = useState<FormItem | null>(null);
-
+  const [newStatus, setNewStatus] = useState<FormItem['status']>("novo");
+  
+  
+  function handleStatusChange( status: FormItem['status']) {
+    if (selectedItems) {
+      setSelectedItems({...selectedItems, status:status})
+    }
+    setItems((prevItems) => prevItems.map((item)=> 
+      item.id === selectedItems?.id ? {...item, status:status} : item
+    ))
+    setNewStatus(status);
+  }
   function handleSelectedItems(items: FormItem) {
     setSelectedItems(items);
+
   }
   function handleCloseModal() {
     setSelectedItems(null);
   }
 
-  function handleAddItem(item: Omit<FormItem, "id">) {
+  function handleAddItem(item: Omit<FormItem, "id" | "status">) {
     const newItem: FormItem = {
+      status: newStatus,
       id: items.length + 1,
       ...item,
     };
@@ -42,7 +55,7 @@ export default function Home() {
           items={filteredItems}
         />
         {selectedItems && (
-          <Modal items={selectedItems} closeModal={handleCloseModal} />
+          <Modal items={selectedItems} onChangeStatus={handleStatusChange} closeModal={handleCloseModal} />
         )}
       </main>
     </div>
