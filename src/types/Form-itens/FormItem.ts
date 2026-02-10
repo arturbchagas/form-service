@@ -1,14 +1,16 @@
+import { type OrderStatus } from "@prisma/client"
 export interface FormItem {
-  id: number;
+  id: string;
   name: string;
   phone?: string;
   email?: string;
   address?: string;
-  companyNamer?: string;
   brand: string;
   model: string;
   serialNumber?: string;
   defects: string;
   defectsHistory?: string;
-  status: 'novo'| 'aprovado'| 'reprovado' | 'pago' |'pronto'|'entregue'|'cancelado';
+  status: OrderStatus;
+  createdAt?: Date | string;
+  updateAt?: Date | string;
 }

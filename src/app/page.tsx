@@ -34,10 +34,10 @@ export default function Home() {
 
   function handleAddItem(item: Omit<FormItem, "id" | "status">) {
     const newItem: FormItem = {
-      status: newStatus,
-      id: items.length + 1,
       ...item,
-    };
+      status: newStatus,
+      id: crypto.randomUUID(),
+    };  
     setItems((prev) => [...prev, newItem]);
   }
 

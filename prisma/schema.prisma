@@ -5,23 +5,35 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id Int @id @default(autoincrement())
+enum OrderStatus {
+  novo
+  aprovado
+  reprovado
+  pago
+  pronto
+  entregue
+  cancelado
+}
+
+model ServiceOrder {
+  id String @id @default(cuid()) @unique
   name String 
   phone String 
   email String
+  adress String
   brand String
   model String
-  serialNumber: string @unique
-  defects: string
-  defectsHistory: string
-  
+  serialNumber String @unique
+  defects String
+  defectsHistory String
+  status OrderStatus @default(novo)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
