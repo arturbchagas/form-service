@@ -32,7 +32,7 @@ export default function Home() {
     setSelectedItems(null);
   }
 
-  function handleAddItem(item: Omit<FormItem, "id" | "status">) {
+  async function handleAddItem(item: Omit<FormItem, "id" | "status">) {
     const newItem: FormItem = {
       ...item,
       status: newStatus,
