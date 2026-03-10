@@ -1,19 +1,13 @@
 "use client";
 import { useState } from "react";
+import { FormItem } from "../../types/Form-itens/FormItem";
+
+type CreateServiceOrderInput = Omit<FormItem, "id" | "createdAt" | "updatedAt">;
+
 interface UserFormProps {
-  onAddItem: (item: {
-    name: string;
-    phone: string;
-    email: string;
-    address: string;
-    brand: string;
-    model: string;
-    serialNumber: string;
-    defects: string;
-    defectsHistory: string;
-    status: 'novo'| 'aprovado'| 'reprovado' | 'pago' |'pronto'|'entregue'|'cancelado';
-  }) => void;
+  onAddItem: (item: CreateServiceOrderInput) => void;
 }
+
 export default function FormService({ onAddItem }: UserFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -27,7 +21,7 @@ export default function FormService({ onAddItem }: UserFormProps) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onAddItem({
+    const newItem: CreateServiceOrderInput = {
       name,
       phone,
       email,
@@ -38,7 +32,9 @@ export default function FormService({ onAddItem }: UserFormProps) {
       defects,
       defectsHistory,
       status: "novo",
-    });
+    };
+
+    onAddItem(newItem);
     setName("");
     setPhone("");
     setEmail("");
