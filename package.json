@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "@prisma/adapter-neon": "^7.4.2",
     "@prisma/client": "^7.2.0",
     "@prisma/config": "^7.3.0",
     "next": "14.2.35",
     "prisma": "^7.2.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20",
