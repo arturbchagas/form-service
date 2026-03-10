@@ -26,6 +26,7 @@ export default function TableService({
             <th className={styles.th}>Marca</th>
             <th className={styles.th}>Modelo</th>
             <th className={styles.th}>Status</th>
+            <th className={styles.th}>Data de criação</th>
           </tr>
         </thead>
 
@@ -41,6 +42,15 @@ export default function TableService({
               <td className={styles.td}>{item.brand}</td>
               <td className={styles.td}>{item.model}</td>
               <td className={styles.td}>{item.status}</td>
+              <td className={styles.td}>
+                {item.createdAt
+                  ? new Date(item.createdAt).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                  : "—"}
+              </td>
             </tr>
           ))}
         </tbody>

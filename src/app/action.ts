@@ -29,6 +29,20 @@ const updateStatusSchema = z.object({
     status: orderStatusSchema,
 });
 
+const updateServiceOrderSchema = z.object({
+    id: z.string().min(1, "Id é obrigatório"),
+    name: z.string().min(1, "Nome é obrigatório"),
+    phone: z.string().optional(),
+    email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+    address: z.string().optional(),
+    brand: z.string().optional(),
+    model: z.string().optional(),
+    serialNumber: z.string().optional(),
+    defects: z.string().min(1, "Descrição do defeito é obrigatória"),
+    defectsHistory: z.string().optional(),
+    status: orderStatusSchema,
+});
+
 const deleteServiceOrderSchema = z.object({
     id: z.string().min(1, "Id é obrigatório"),
 });
@@ -61,6 +75,34 @@ export async function createServiceOrder(
     revalidatePath("/");
 
     return created as FormItem;
+}
+
+export async function updateServiceOrder(
+    id: string,
+    formData: Omit<FormItem, "id" | "createdAt" | "updatedAt">
+) {
+    const parseResult = updateServiceOrderSchema.safeParse({ id, ...formData });
+
+    if (!parseResult.success) {
+        const { fieldErrors, formErrors } = parseResult.error.flatten();
+        throw new Error(
+            JSON.stringify({
+                message: "Falha na validação ao atualizar a ordem de serviço.",
+                fieldErrors,
+                formErrors,
+            })
+        );
+    }
+
+    const { id: orderId, ...data } = parseResult.data;
+
+    const updated = await prisma.serviceOrder.update({
+        where: { id: orderId },
+        data,
+    });
+
+    revalidatePath("/");
+    return updated as FormItem;
 }
 
 export async function updateStatus(id: string, status: OrderStatus) {
