@@ -5,8 +5,10 @@ interface UserModalProps {
   items: FormItem;
   closeModal: () => void;
   onChangeStatus: (status: FormItem['status']) => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
-export default function Modal({ items, closeModal, onChangeStatus }: UserModalProps) {
+export default function Modal({ items, closeModal, onChangeStatus, onEdit, onDelete }: UserModalProps) {
 
 
   return (
@@ -38,6 +40,19 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
             <p>Número de série: {items.serialNumber}</p>
             <p>Defeitos: {items.defects}</p>
             <p>Histórico de defeitos: {items.defectsHistory}</p>
+            <p>Data de criação: {items.createdAt ? new Date(items.createdAt).toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }) : "—"}</p>
+          </div>
+          <div className={styles.modal_actions}>
+            <button type="button" className={styles.editButton} onClick={onEdit}>
+              Editar
+            </button>
+            <button type="button" className={styles.deleteButton} onClick={onDelete}>
+              Excluir
+            </button>
           </div>
         </div>
       </div>

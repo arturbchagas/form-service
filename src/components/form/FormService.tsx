@@ -1,14 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FormItem } from "../../types/Form-itens/FormItem";
+import styles from "./FormService.module.css";
 
 type CreateServiceOrderInput = Omit<FormItem, "id" | "createdAt" | "updatedAt">;
 
 interface UserFormProps {
   onAddItem: (item: CreateServiceOrderInput) => void;
+  itemToEdit?: FormItem | null;
+  onUpdateItem?: (id: string, item: CreateServiceOrderInput) => void;
+  onEditDone?: () => void;
 }
 
-export default function FormService({ onAddItem }: UserFormProps) {
+export default function FormService({
+  onAddItem,
+  itemToEdit,
+  onUpdateItem,
+  onEditDone,
+}: UserFormProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -19,9 +29,34 @@ export default function FormService({ onAddItem }: UserFormProps) {
   const [defects, setDefects] = useState("");
   const [defectsHistory, setDefectsHistory] = useState("");
 
+  useEffect(() => {
+    if (itemToEdit) {
+      setIsOpen(true);
+      setName(itemToEdit.name);
+      setPhone(itemToEdit.phone ?? "");
+      setEmail(itemToEdit.email ?? "");
+      setAddress(itemToEdit.address ?? "");
+      setBrand(itemToEdit.brand ?? "");
+      setModel(itemToEdit.model ?? "");
+      setSerialNumber(itemToEdit.serialNumber ?? "");
+      setDefects(itemToEdit.defects);
+      setDefectsHistory(itemToEdit.defectsHistory ?? "");
+    } else {
+      setName("");
+      setPhone("");
+      setEmail("");
+      setAddress("");
+      setBrand("");
+      setModel("");
+      setSerialNumber("");
+      setDefects("");
+      setDefectsHistory("");
+    }
+  }, [itemToEdit]);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newItem: CreateServiceOrderInput = {
+    const formData: CreateServiceOrderInput = {
       name,
       phone,
       email,
@@ -31,77 +66,167 @@ export default function FormService({ onAddItem }: UserFormProps) {
       serialNumber,
       defects,
       defectsHistory,
-      status: "novo",
+      status: itemToEdit?.status ?? "novo",
     };
 
-    onAddItem(newItem);
-    setName("");
-    setPhone("");
-    setEmail("");
-    setAddress("");
-    setBrand("");
-    setModel("");
-    setSerialNumber("");
-    setDefects("");
-    setDefectsHistory("");
+    if (itemToEdit && onUpdateItem && onEditDone) {
+      onUpdateItem(itemToEdit.id, formData);
+      onEditDone();
+      setIsOpen(false);
+    } else {
+      onAddItem(formData);
+      setName("");
+      setPhone("");
+      setEmail("");
+      setAddress("");
+      setBrand("");
+      setModel("");
+      setSerialNumber("");
+      setDefects("");
+      setDefectsHistory("");
+      setIsOpen(false);
+    }
   };
+
   return (
-    <div className="container">
-      <form onSubmit={handleSubmit}>
-        <div className="dados_cliente">
-          <label>
-            Nome
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <label>
-            Telefone
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </label>
-          <label>
-            E-mail
-            <input value={email} onChange={(e) => setEmail(e.target.value)} />
-          </label>
-          <label>
-            Endereço
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          </label>
+    <div className={styles.container}>
+      <button
+        type="button"
+        className={`${styles.trigger} ${isOpen ? styles.triggerOpen : ""}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+        aria-controls="form-panel"
+        id="form-trigger"
+      >
+        <span className={styles.triggerLabel}>
+          {itemToEdit ? "Editar ordem de serviço" : "Nova ordem de serviço"}
+        </span>
+        <span className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`} aria-hidden>
+          ▼
+        </span>
+      </button>
+
+      <div
+        id="form-panel"
+        className={`${styles.dropdownPanel} ${isOpen ? styles.dropdownPanelOpen : ""}`}
+        role="region"
+        aria-labelledby="form-trigger"
+      >
+        <div className={styles.dropdownPanelInner}>
+          <form onSubmit={handleSubmit} className={styles.form}>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Dados do cliente</h2>
+          <div className={styles.fieldsGrid}>
+            <div className={styles.field}>
+              <label htmlFor="name">Nome</label>
+              <input
+                id="name"
+                className={styles.input}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nome completo"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="phone">Telefone</label>
+              <input
+                id="phone"
+                className={styles.input}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="email">E-mail</label>
+              <input
+                id="email"
+                type="email"
+                className={styles.input}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+              />
+            </div>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="address">Endereço</label>
+              <input
+                id="address"
+                className={styles.input}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Rua, número, bairro, cidade"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Dados do aparelho</h2>
+          <div className={styles.fieldsGrid}>
+            <div className={styles.field}>
+              <label htmlFor="brand">Marca</label>
+              <input
+                id="brand"
+                className={styles.input}
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                placeholder="Marca do equipamento"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="model">Modelo</label>
+              <input
+                id="model"
+                className={styles.input}
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="Modelo"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="serialNumber">Número de série</label>
+              <input
+                id="serialNumber"
+                className={styles.input}
+                value={serialNumber}
+                onChange={(e) => setSerialNumber(e.target.value)}
+                placeholder="Nº de série"
+              />
+            </div>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="defects">Defeitos</label>
+              <textarea
+                id="defects"
+                className={styles.textarea}
+                value={defects}
+                onChange={(e) => setDefects(e.target.value)}
+                placeholder="Descreva o(s) defeito(s) relatado(s)"
+                rows={4}
+              />
+            </div>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="defectsHistory">Histórico de defeitos</label>
+              <textarea
+                id="defectsHistory"
+                className={styles.textareaLarge}
+                value={defectsHistory}
+                onChange={(e) => setDefectsHistory(e.target.value)}
+                placeholder="Histórico de reparos e defeitos anteriores"
+                rows={5}
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className={styles.submitWrapper}>
+          <button type="submit" className={styles.submitBtn}>
+            {itemToEdit ? "Atualizar" : "Enviar"}
+          </button>
         </div>
-        <div className="dados_aparelho">
-          <label>
-            Marca
-            <input value={brand} onChange={(e) => setBrand(e.target.value)} />
-          </label>
-          <label>
-            Modelo
-            <input value={model} onChange={(e) => setModel(e.target.value)} />
-          </label>
-          <label>
-            Número de série
-            <input
-              value={serialNumber}
-              onChange={(e) => setSerialNumber(e.target.value)}
-            />
-          </label>
-          <label>
-            Defeitos
-            <input
-              value={defects}
-              onChange={(e) => setDefects(e.target.value)}
-            />
-          </label>
-          <label>
-            Histórico de defeitos
-            <input
-              value={defectsHistory}
-              onChange={(e) => setDefectsHistory(e.target.value)}
-            />
-          </label>
+          </form>
         </div>
-        <button type="submit">Enviar</button>
-      </form>
+      </div>
     </div>
   );
 }

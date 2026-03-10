@@ -1,0 +1,210 @@
+.container {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--foreground);
+  background: var(--form-bg, #1367bc);
+  border: 1px solid var(--form-border, #e2e8f0);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.trigger:hover {
+  border-color: #94a3b8;
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.triggerOpen {
+  border-radius: 12px 12px 0 0;
+  border-bottom-color: transparent;
+}
+
+.triggerLabel {
+  flex: 1;
+  text-align: left;
+}
+
+.chevron {
+  flex-shrink: 0;
+  margin-left: 12px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  transition: transform 0.25s ease;
+}
+
+.chevronOpen {
+  transform: rotate(-180deg);
+}
+
+.dropdownPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+}
+
+.dropdownPanelOpen {
+  grid-template-rows: 1fr;
+}
+
+.dropdownPanelInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dropdownPanelOpen .dropdownPanelInner {
+  overflow: visible;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 28px;
+  margin-top: 0;
+  background: var(--form-bg, #f8fafc);
+  border: 1px solid var(--form-border, #e2e8f0);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 4px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--form-border, #e2e8f0);
+}
+
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--form-border, #e2e8f0);
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.textarea {
+  composes: input;
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textareaLarge {
+  composes: textarea;
+  min-height: 140px;
+}
+
+.submitWrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.submitBtn {
+  padding: 12px 24px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover {
+  background: #1d4ed8;
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .form {
+    padding: 20px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .form {
+    --form-bg: rgba(255, 255, 255, 0.04);
+    --form-border: rgba(255, 255, 255, 0.12);
+  }
+
+  .input {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  }
+}
