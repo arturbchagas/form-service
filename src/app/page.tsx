@@ -1,11 +1,20 @@
 export const dynamic = "force-dynamic";
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import HomeClient from "../components/homeClient/HomeClient";
 import { FormItem } from "../types/Form-itens/FormItem";
 
 export default async function Home() {
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string })?.id;
+
+  if (!userId) redirect("/login");
+
   const serviceOrders = await prisma.serviceOrder.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
   });
 

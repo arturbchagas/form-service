@@ -4,13 +4,22 @@ import { OrderStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { FormItem } from "@/types/Form-itens/FormItem";
 import { z } from "zod";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+
+async function getCurrentUserId(): Promise<string> {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as { id?: string })?.id;
+    if (!userId) throw new Error("Não autorizado.");
+    return userId;
+}
 
 const orderStatusSchema = z.nativeEnum(OrderStatus);
 
 const createServiceOrderSchema = z.object({
-    name: z.string().min(1, "Nome é obrigatório"),//campo obrigatório com pelo menos 1 caractere
+    name: z.string().min(1, "Nome é obrigatório"),
     phone: z.string().optional(),
-    email: z//campo opcional com email válido ou vazio
+    email: z
         .string()
         .email("E-mail inválido")
         .optional()
@@ -50,6 +59,8 @@ const deleteServiceOrderSchema = z.object({
 export async function createServiceOrder(
     formData: Omit<FormItem, "id" | "createdAt" | "updatedAt">
 ) {
+    const userId = await getCurrentUserId();
+
     const parseResult = createServiceOrderSchema.safeParse(formData);
 
     if (!parseResult.success) {
@@ -69,6 +80,7 @@ export async function createServiceOrder(
         data: {
             ...validData,
             status: OrderStatus.novo,
+            userId,
         },
     });
 
@@ -81,6 +93,8 @@ export async function updateServiceOrder(
     id: string,
     formData: Omit<FormItem, "id" | "createdAt" | "updatedAt">
 ) {
+    const userId = await getCurrentUserId();
+
     const parseResult = updateServiceOrderSchema.safeParse({ id, ...formData });
 
     if (!parseResult.success) {
@@ -97,7 +111,7 @@ export async function updateServiceOrder(
     const { id: orderId, ...data } = parseResult.data;
 
     const updated = await prisma.serviceOrder.update({
-        where: { id: orderId },
+        where: { id: orderId, userId },
         data,
     });
 
@@ -106,6 +120,8 @@ export async function updateServiceOrder(
 }
 
 export async function updateStatus(id: string, status: OrderStatus) {
+    const userId = await getCurrentUserId();
+
     const parseResult = updateStatusSchema.safeParse({ id, status });
 
     if (!parseResult.success) {
@@ -121,7 +137,7 @@ export async function updateStatus(id: string, status: OrderStatus) {
 
     try {
         await prisma.serviceOrder.update({
-            where: { id: parseResult.data.id },
+            where: { id: parseResult.data.id, userId },
             data: { status: parseResult.data.status },
         });
     } catch {
@@ -132,6 +148,8 @@ export async function updateStatus(id: string, status: OrderStatus) {
 }
 
 export async function deleteServiceOrder(id: string) {
+    const userId = await getCurrentUserId();
+
     const parseResult = deleteServiceOrderSchema.safeParse({ id });
 
     if (!parseResult.success) {
@@ -147,7 +165,7 @@ export async function deleteServiceOrder(id: string) {
 
     try {
         await prisma.serviceOrder.delete({
-            where: { id: parseResult.data.id },
+            where: { id: parseResult.data.id, userId },
         });
     } catch {
         throw new Error("Erro ao excluir a ordem de serviço.");
