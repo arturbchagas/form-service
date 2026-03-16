@@ -22,6 +22,16 @@ enum OrderStatus {
   cancelado
 }
 
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  serviceOrders ServiceOrder[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model ServiceOrder {
   id String @id @default(cuid()) @unique
   name String 
@@ -34,6 +44,8 @@ model ServiceOrder {
   defects String
   defectsHistory String?
   status OrderStatus @default(novo)
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
 }

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import prisma from "@/lib/prisma";
 import HomeClient from "../components/homeClient/HomeClient";
 import { FormItem } from "../types/Form-itens/FormItem";
