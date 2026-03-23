@@ -18,13 +18,16 @@ const orderStatusSchema = z.nativeEnum(OrderStatus);
 
 const createServiceOrderSchema = z.object({
     name: z.string().min(1, "Nome é obrigatório"),
+    empresa: z.string().optional(),
     phone: z.string().optional(),
+    cep: z.string().min(1, "CEP é obrigatório"),
     email: z
         .string()
         .email("E-mail inválido")
         .optional()
         .or(z.literal("")),
     address: z.string().optional(),
+    aparelho: z.string().min(1, "Aparelho é obrigatório"),
     brand: z.string().optional(),
     model: z.string().optional(),
     serialNumber: z.string().optional(),
@@ -41,15 +44,23 @@ const updateStatusSchema = z.object({
 const updateServiceOrderSchema = z.object({
     id: z.string().min(1, "Id é obrigatório"),
     name: z.string().min(1, "Nome é obrigatório"),
+    empresa: z.string().optional(),
     phone: z.string().optional(),
+    cep: z.string().min(1, "CEP é obrigatório"),
     email: z.string().email("E-mail inválido").optional().or(z.literal("")),
     address: z.string().optional(),
+    aparelho: z.string().min(1, "Aparelho é obrigatório"),
     brand: z.string().optional(),
     model: z.string().optional(),
     serialNumber: z.string().optional(),
     defects: z.string().min(1, "Descrição do defeito é obrigatória"),
     defectsHistory: z.string().optional(),
     status: orderStatusSchema,
+});
+
+const updatePriceSchema = z.object({
+    id: z.string().min(1, "Id é obrigatório"),
+    price: z.number().min(0, "Preço deve ser maior ou igual a zero"),
 });
 
 const deleteServiceOrderSchema = z.object({
@@ -86,7 +97,7 @@ export async function createServiceOrder(
 
     revalidatePath("/");
 
-    return created as FormItem;
+    return created as unknown as FormItem;
 }
 
 export async function updateServiceOrder(
@@ -116,7 +127,7 @@ export async function updateServiceOrder(
     });
 
     revalidatePath("/");
-    return updated as FormItem;
+    return updated as unknown as FormItem;
 }
 
 export async function updateStatus(id: string, status: OrderStatus) {
@@ -169,6 +180,36 @@ export async function deleteServiceOrder(id: string) {
         });
     } catch {
         throw new Error("Erro ao excluir a ordem de serviço.");
+    }
+
+    revalidatePath("/");
+}
+
+export async function updatePrice(id: string, price: number) {
+    const userId = await getCurrentUserId();
+
+    const parseResult = updatePriceSchema.safeParse({ id, price });
+
+    if (!parseResult.success) {
+        const { fieldErrors, formErrors } = parseResult.error.flatten();
+        throw new Error(
+            JSON.stringify({
+                message: "Falha na validação ao atualizar o preço.",
+                fieldErrors,
+                formErrors,
+            })
+        );
+    }
+
+    try {
+        await prisma.$executeRaw`
+            UPDATE "ServiceOrder"
+            SET "price" = ${parseResult.data.price}
+            WHERE "id" = ${parseResult.data.id}
+            AND "userId" = ${userId}
+        `;
+    } catch {
+        throw new Error("Erro ao atualizar o preço da ordem de serviço.");
     }
 
     revalidatePath("/");

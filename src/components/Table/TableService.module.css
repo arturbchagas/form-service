@@ -29,3 +29,212 @@
 .tr:hover {
   background-color: #ccc;
 }
+
+/* Action buttons */
+.actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  color: #fff;
+}
+
+.actionBtn:active {
+  transform: scale(0.93);
+}
+
+.actionView {
+  background: #6366f1;
+}
+.actionView:hover { background: #4f46e5; }
+
+.actionEdit {
+  background: #2563eb;
+}
+.actionEdit:hover { background: #1d4ed8; }
+
+.actionPrice {
+  background: #16a34a;
+}
+.actionPrice:hover { background: #15803d; }
+
+.actionDelete {
+  background: #dc2626;
+}
+.actionDelete:hover { background: #b91c1c; }
+
+.actionReceipt {
+  background: #d97706;
+}
+.actionReceipt:hover { background: #b45309; }
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Mini price modal */
+.miniModal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.miniModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.miniModalHeader h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+  margin: 0;
+}
+
+.miniModalSub {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #555;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.closeBtn:hover { color: #111; }
+
+.priceInput {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.priceInput:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.miniModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.cancelBtn:hover { background: #e5e7eb; }
+
+.saveBtn {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.saveBtn:hover { background: #1d4ed8; }
+
+/* Edit modal */
+.editModal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  width: min(700px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.editGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.editField label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.editField input,
+.editField textarea {
+  padding: 8px 10px;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.editField input:focus,
+.editField textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.editFieldFull {
+  grid-column: 1 / -1;
+}

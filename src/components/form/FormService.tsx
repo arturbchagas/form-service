@@ -20,9 +20,12 @@ export default function FormService({
 }: UserFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
+  const [empresa, setEmpresa] = useState("");
   const [phone, setPhone] = useState("");
+  const [cep, setCep] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [aparelho, setAparelho] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
@@ -33,9 +36,12 @@ export default function FormService({
     if (itemToEdit) {
       setIsOpen(true);
       setName(itemToEdit.name);
+      setEmpresa(itemToEdit.empresa ?? "");
       setPhone(itemToEdit.phone ?? "");
+      setCep(itemToEdit.cep ?? "");
       setEmail(itemToEdit.email ?? "");
       setAddress(itemToEdit.address ?? "");
+      setAparelho(itemToEdit.aparelho ?? "");
       setBrand(itemToEdit.brand ?? "");
       setModel(itemToEdit.model ?? "");
       setSerialNumber(itemToEdit.serialNumber ?? "");
@@ -43,9 +49,12 @@ export default function FormService({
       setDefectsHistory(itemToEdit.defectsHistory ?? "");
     } else {
       setName("");
+      setEmpresa("");
       setPhone("");
+      setCep("");
       setEmail("");
       setAddress("");
+      setAparelho("");
       setBrand("");
       setModel("");
       setSerialNumber("");
@@ -58,9 +67,12 @@ export default function FormService({
     e.preventDefault();
     const formData: CreateServiceOrderInput = {
       name,
+      empresa,
       phone,
+      cep,
       email,
       address,
+      aparelho,
       brand,
       model,
       serialNumber,
@@ -76,9 +88,12 @@ export default function FormService({
     } else {
       onAddItem(formData);
       setName("");
+      setEmpresa("");
       setPhone("");
+      setCep("");
       setEmail("");
       setAddress("");
+      setAparelho("");
       setBrand("");
       setModel("");
       setSerialNumber("");
@@ -128,6 +143,16 @@ export default function FormService({
               />
             </div>
             <div className={styles.field}>
+              <label htmlFor="empresa">Empresa <span className={styles.optional}>(opcional)</span></label>
+              <input
+                id="empresa"
+                className={styles.input}
+                value={empresa}
+                onChange={(e) => setEmpresa(e.target.value)}
+                placeholder="Nome da empresa"
+              />
+            </div>
+            <div className={styles.field}>
               <label htmlFor="phone">Telefone</label>
               <input
                 id="phone"
@@ -135,6 +160,17 @@ export default function FormService({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(00) 00000-0000"
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="cep">CEP <span className={styles.required}>*</span></label>
+              <input
+                id="cep"
+                className={styles.input}
+                value={cep}
+                onChange={(e) => setCep(e.target.value)}
+                placeholder="00000-000"
+                required
               />
             </div>
             <div className={styles.field}>
@@ -164,6 +200,17 @@ export default function FormService({
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Dados do aparelho</h2>
           <div className={styles.fieldsGrid}>
+            <div className={styles.field}>
+              <label htmlFor="aparelho">Aparelho <span className={styles.required}>*</span></label>
+              <input
+                id="aparelho"
+                className={styles.input}
+                value={aparelho}
+                onChange={(e) => setAparelho(e.target.value)}
+                placeholder="Ex: Ar condicionado, Giroflex"
+                required
+              />
+            </div>
             <div className={styles.field}>
               <label htmlFor="brand">Marca</label>
               <input

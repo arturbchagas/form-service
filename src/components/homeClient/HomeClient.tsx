@@ -6,7 +6,13 @@ import TableService from "../Table/TableService";
 import SearchBar from "../search/SearchBar";
 import Modal from "../modal/Modal";
 import { FormItem } from "../../types/Form-itens/FormItem";
-import { createServiceOrder, updateStatus, updateServiceOrder, deleteServiceOrder } from "../../app/action";
+import {
+  createServiceOrder,
+  updateStatus,
+  updateServiceOrder,
+  deleteServiceOrder,
+  updatePrice,
+} from "../../app/action";
 
 interface HomeClientProps {
   initialItems: FormItem[];
@@ -16,7 +22,6 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
   const [items, setItems] = useState<FormItem[]>(initialItems);
   const [searchValue, setSearchValue] = useState("");
   const [selectedItems, setSelectedItems] = useState<FormItem | null>(null);
-  const [itemToEdit, setItemToEdit] = useState<FormItem | null>(null);
 
   function handleStatusChange(status: FormItem["status"]) {
     if (!selectedItems) return;
@@ -35,7 +40,7 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
     });
   }
 
-  function handleSelectedItems(item: FormItem) {
+  function handleView(item: FormItem) {
     setSelectedItems(item);
   }
 
@@ -43,20 +48,11 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
     setSelectedItems(null);
   }
 
-  function handleEdit() {
-    if (selectedItems) {
-      setItemToEdit(selectedItems);
-      setSelectedItems(null);
-    }
-  }
-
-  async function handleDelete() {
-    if (!selectedItems) return;
-    const id = selectedItems.id;
+  async function handleDelete(item: FormItem) {
+    if (!confirm(`Excluir a O.S. de "${item.name}"?`)) return;
     try {
-      await deleteServiceOrder(id);
-      setItems((prev) => prev.filter((item) => item.id !== id));
-      setSelectedItems(null);
+      await deleteServiceOrder(item.id);
+      setItems((prev) => prev.filter((i) => i.id !== item.id));
     } catch (error) {
       console.error("Erro ao excluir ordem de serviço:", error);
     }
@@ -71,9 +67,19 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
       setItems((prev) =>
         prev.map((item) => (item.id === id ? updated : item))
       );
-      setItemToEdit(null);
     } catch (error) {
       console.error("Erro ao atualizar ordem de serviço:", error);
+    }
+  }
+
+  async function handleUpdatePrice(item: FormItem, price: number) {
+    try {
+      await updatePrice(item.id, price);
+      setItems((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, price } : i))
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar preço:", error);
     }
   }
 
@@ -82,7 +88,7 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
   ) {
     try {
       const created = await createServiceOrder(item);
-      setItems((prev) => [...prev, created]);
+      setItems((prev) => [created, ...prev]);
     } catch (error) {
       console.error("Erro ao criar ordem de serviço:", error);
     }
@@ -102,25 +108,25 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
   const filteredItems = items.filter((item) => {
     if (!searchLower) return true;
     const matchesName = item.name.toLowerCase().includes(searchLower);
+    const matchesEmpresa = (item.empresa ?? "").toLowerCase().includes(searchLower);
+    const matchesAparelho = (item.aparelho ?? "").toLowerCase().includes(searchLower);
     const dateStr = formatDate(item.createdAt);
     const matchesDate = dateStr.includes(searchLower);
-    return matchesName || matchesDate;
+    return matchesName || matchesEmpresa || matchesAparelho || matchesDate;
   });
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <FormService
-          onAddItem={handleAddItem}
-          itemToEdit={itemToEdit}
-          onUpdateItem={handleUpdateItem}
-          onEditDone={() => setItemToEdit(null)}
-        />
+        <FormService onAddItem={handleAddItem} />
         <SearchBar value={searchValue} onChange={setSearchValue} />
         <div className={styles.tableSection}>
           <TableService
-            onSelectedItems={handleSelectedItems}
             items={filteredItems}
+            onView={handleView}
+            onEdit={handleUpdateItem}
+            onDelete={handleDelete}
+            onUpdatePrice={handleUpdatePrice}
           />
         </div>
         {selectedItems && (
@@ -128,12 +134,9 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
             items={selectedItems}
             onChangeStatus={handleStatusChange}
             closeModal={handleCloseModal}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
           />
         )}
       </main>
     </div>
   );
 }
-

@@ -35,14 +35,18 @@ model User {
 model ServiceOrder {
   id String @id @default(cuid()) @unique
   name String 
+  empresa        String?
   phone String?
+  cep            String
   email String?
   address String?
+  aparelho       String
   brand String?
   model String?
   serialNumber String? @unique
   defects String
   defectsHistory String?
+  price          Float?
   status OrderStatus @default(novo)
   userId         String?
   user           User?    @relation(fields: [userId], references: [id])
