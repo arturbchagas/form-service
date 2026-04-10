@@ -1,15 +1,25 @@
-"use client";
-import { useState } from "react";
+"use client"; // Precisa rodar no browser para gerenciar os modais e interações
+
+import { useState, useEffect } from "react";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./TableService.module.css";
-import { Eye, Pencil, DollarSign, Trash2, FileText } from "lucide-react";
+import { Eye, Pencil, DollarSign, Trash2, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+
+const ITEMS_PER_PAGE = 5;
+
+function getPageNumbers(current: number, total: number): (number | "…")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "…", total];
+  if (current >= total - 3) return [1, "…", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "…", current - 1, current, current + 1, "…", total];
+}
 
 interface UserTableProps {
-  items: FormItem[];
-  onView: (item: FormItem) => void;
-  onEdit: (id: string, data: Omit<FormItem, "id" | "createdAt" | "updatedAt">) => void;
-  onDelete: (item: FormItem) => void;
-  onUpdatePrice: (item: FormItem, price: number) => void;
+  items: FormItem[];                                                                   // Lista de OS para exibir
+  onView: (item: FormItem) => void;                                                    // Abre modal de visualização
+  onEdit: (id: string, data: Omit<FormItem, "id" | "createdAt" | "updatedAt">) => void; // Salva edição
+  onDelete: (item: FormItem) => void;                                                  // Exclui a OS
+  onUpdatePrice: (item: FormItem, price: number) => void;                              // Atualiza o preço
 }
 
 export default function TableService({
@@ -19,11 +29,25 @@ export default function TableService({
   onDelete,
   onUpdatePrice,
 }: UserTableProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Volta para a primeira página sempre que a lista de itens mudar (ex: busca)
+  useEffect(() => { setCurrentPage(1); }, [items]);
+
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const paginatedItems = items.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  // OS selecionada para editar o preço (null = modal de preço fechado)
   const [priceModalItem, setPriceModalItem] = useState<FormItem | null>(null);
   const [priceValue, setPriceValue] = useState("");
+
+  // OS selecionada para editar os dados completos (null = modal de edição fechado)
   const [editModalItem, setEditModalItem] = useState<FormItem | null>(null);
 
-  // Edit form state
+  // Estados controlados do formulário de edição inline
   const [editName, setEditName] = useState("");
   const [editEmpresa, setEditEmpresa] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -37,8 +61,9 @@ export default function TableService({
   const [editDefects, setEditDefects] = useState("");
   const [editDefectsHistory, setEditDefectsHistory] = useState("");
 
+  // Abre o mini modal de preço e preenche com o preço atual da OS (se existir)
   function openPriceModal(e: React.MouseEvent, item: FormItem) {
-    e.stopPropagation();
+    e.stopPropagation(); // Impede que o clique propague para a linha da tabela
     setPriceModalItem(item);
     setPriceValue(item.price != null ? String(item.price) : "");
   }
@@ -48,14 +73,17 @@ export default function TableService({
     setPriceValue("");
   }
 
+  // Valida e salva o preço quando o usuário confirma no modal
   function handleSavePrice() {
     if (!priceModalItem) return;
+    // Troca vírgula por ponto para aceitar formato brasileiro (ex: "1.500,00")
     const parsed = parseFloat(priceValue.replace(",", "."));
-    if (isNaN(parsed) || parsed < 0) return;
+    if (isNaN(parsed) || parsed < 0) return; // Ignora valores inválidos
     onUpdatePrice(priceModalItem, parsed);
     closePriceModal();
   }
 
+  // Abre o modal de edição e pré-preenche todos os campos com os dados atuais da OS
   function openEditModal(e: React.MouseEvent, item: FormItem) {
     e.stopPropagation();
     setEditModalItem(item);
@@ -77,6 +105,7 @@ export default function TableService({
     setEditModalItem(null);
   }
 
+  // Coleta os dados do formulário de edição e chama o callback do pai
   function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!editModalItem) return;
@@ -93,23 +122,29 @@ export default function TableService({
       serialNumber: editSerialNumber,
       defects: editDefects,
       defectsHistory: editDefectsHistory,
-      status: editModalItem.status,
+      status: editModalItem.status, // Mantém o status atual ao editar dados
     });
     closeEditModal();
   }
 
+  // Exibe mensagem quando não há ordens de serviço (lista vazia ou busca sem resultado)
   if (!items || items.length === 0) {
-    return <p>Nenhum item para exibir.</p>;
+    return (
+      <div className={styles.tableWrapper}>
+        <p className={styles.emptyState}>Nenhum item para exibir.</p>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <>
+    <div className={styles.tableContainer}>
+    <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr className={styles.tr}>
             <th className={styles.th}>Nome</th>
             <th className={styles.th}>Empresa</th>
-            <th className={styles.th}>Telefone</th>
             <th className={styles.th}>Aparelho</th>
             <th className={styles.th}>Preço</th>
             <th className={styles.th}>Status</th>
@@ -119,19 +154,25 @@ export default function TableService({
         </thead>
 
         <tbody>
-          {items.map((item) => (
+          {paginatedItems.map((item) => (
             <tr className={styles.tr} key={item.id}>
               <td className={styles.td}>{item.name}</td>
               <td className={styles.td}>{item.empresa || "—"}</td>
-              <td className={styles.td}>{item.phone || "—"}</td>
+              
               <td className={styles.td}>{item.aparelho}</td>
               <td className={styles.td}>
+                {/* Formata o preço em Real Brasileiro (R$) se existir */}
                 {item.price != null
                   ? item.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
                   : "—"}
               </td>
-              <td className={styles.td}>{item.status}</td>
               <td className={styles.td}>
+                <span className={styles.statusBadge} data-status={item.status}>
+                  {item.status}
+                </span>
+              </td>
+              <td className={styles.td}>
+                {/* Formata a data no padrão dd/mm/aaaa */}
                 {item.createdAt
                   ? new Date(item.createdAt).toLocaleDateString("pt-BR", {
                       day: "2-digit",
@@ -142,6 +183,7 @@ export default function TableService({
               </td>
               <td className={styles.td}>
                 <div className={styles.actions}>
+                  {/* Botão visualizar: abre o modal de status */}
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionView}`}
@@ -150,6 +192,8 @@ export default function TableService({
                   >
                     <Eye size={16} />
                   </button>
+
+                  {/* Botão editar: abre o modal de edição completa */}
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionEdit}`}
@@ -158,6 +202,8 @@ export default function TableService({
                   >
                     <Pencil size={16} />
                   </button>
+
+                  {/* Botão preço: abre o mini modal para definir o valor */}
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionPrice}`}
@@ -166,6 +212,10 @@ export default function TableService({
                   >
                     <DollarSign size={16} />
                   </button>
+
+                  {/* Botão recibo PDF: desabilitado enquanto não houver preço definido.
+                      Usa import dinâmico para carregar a lib de PDF apenas quando necessário
+                      (evita aumentar o bundle principal) */}
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionReceipt}`}
@@ -180,6 +230,8 @@ export default function TableService({
                   >
                     <FileText size={16} />
                   </button>
+
+                  {/* Botão excluir: deleta a OS após confirmação */}
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionDelete}`}
@@ -194,10 +246,57 @@ export default function TableService({
           ))}
         </tbody>
       </table>
+    </div>
 
-      {/* Mini modal de preço */}
+    {/* Paginação */}
+    {totalPages > 1 && (
+      <div className={styles.pagination}>
+        <span className={styles.pageInfo}>
+          {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, items.length)} de {items.length}
+        </span>
+
+        <div className={styles.pageControls}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            title="Página anterior"
+          >
+            <ChevronLeft size={15} />
+          </button>
+
+          {getPageNumbers(currentPage, totalPages).map((page, idx) =>
+            page === "…" ? (
+              <span key={`ellipsis-${idx}`} className={styles.pageEllipsis}>…</span>
+            ) : (
+              <button
+                key={page}
+                className={`${styles.pageBtn} ${currentPage === page ? styles.pageBtnActive : ""}`}
+                onClick={() => setCurrentPage(page as number)}
+              >
+                {page}
+              </button>
+            )
+          )}
+
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            title="Próxima página"
+          >
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      </div>
+    )}
+    </div>
+
+      {/* Mini modal de preço — exibido sobre a tabela quando priceModalItem != null */}
       {priceModalItem && (
+        // Clique no overlay (fundo escuro) fecha o modal
         <div className={styles.overlay} onClick={closePriceModal}>
+          {/* stopPropagation impede que clique dentro do modal feche ele */}
           <div className={styles.miniModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.miniModalHeader}>
               <h3>Adicionar Preço</h3>
@@ -212,7 +311,7 @@ export default function TableService({
               value={priceValue}
               onChange={(e) => setPriceValue(e.target.value)}
               placeholder="0,00"
-              autoFocus
+              autoFocus // Foca no campo ao abrir o modal para agilizar a digitação
             />
             <div className={styles.miniModalActions}>
               <button type="button" className={styles.cancelBtn} onClick={closePriceModal}>Cancelar</button>
@@ -222,7 +321,7 @@ export default function TableService({
         </div>
       )}
 
-      {/* Modal de edição */}
+      {/* Modal de edição completa — exibido quando editModalItem != null */}
       {editModalItem && (
         <div className={styles.overlay} onClick={closeEditModal}>
           <div className={styles.editModal} onClick={(e) => e.stopPropagation()}>
@@ -289,6 +388,6 @@ export default function TableService({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

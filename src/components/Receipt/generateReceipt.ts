@@ -6,22 +6,14 @@ export async function generateReceiptPDF(item: FormItem): Promise<void> {
     { default: html2canvas },
     React,
     { createRoot },
-    QRCode,
     { default: ReceiptTemplate },
   ] = await Promise.all([
     import("jspdf"),
     import("html2canvas"),
     import("react"),
     import("react-dom/client"),
-    import("qrcode"),
     import("./ReceiptTemplate"),
   ]);
-
-  // Generate QR code data URL for Pix key
-  const qrCodeDataUrl = await QRCode.toDataURL("33.593.091/0001-75", {
-    width: 120,
-    margin: 1,
-  });
 
   // Create a hidden container
   const container = document.createElement("div");
@@ -38,7 +30,6 @@ export async function generateReceiptPDF(item: FormItem): Promise<void> {
     root.render(
       React.createElement(ReceiptTemplate, {
         item,
-        qrCodeDataUrl,
       })
     );
     // Wait for next paint

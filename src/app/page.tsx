@@ -1,3 +1,5 @@
+// force-dynamic: impede que o Next.js renderize esta página durante o build.
+// Como ela mostra dados ao vivo do banco, precisa ser renderizada a cada requisição.
 export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth/next";
@@ -8,6 +10,7 @@ import HomeClient from "../components/homeClient/HomeClient";
 import { FormItem } from "../types/Form-itens/FormItem";
 import { OrderStatus } from "@prisma/client";
 
+// Tipo que representa uma linha do banco como o Prisma retorna
 interface ServiceOrderRow {
   id: string;
   name: string;
@@ -29,17 +32,24 @@ interface ServiceOrderRow {
   updatedAt: Date | null;
 }
 
+// Este é um SERVER COMPONENT — roda no servidor, tem acesso direto ao banco.
+// O usuário nunca vê este código, apenas o HTML resultante.
 export default async function Home() {
+  // 1. Lê a sessão do usuário logado no servidor
   const session = await getServerSession(authOptions);
   const userId = (session?.user as { id?: string })?.id;
 
+  // 2. Se não estiver logado, redireciona para /login antes de qualquer coisa
   if (!userId) redirect("/login");
 
+  // 3. Busca APENAS as ordens do usuário logado, ordenadas da mais recente para a mais antiga
   const serviceOrders = (await prisma.serviceOrder.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
   })) as unknown as ServiceOrderRow[];
 
+  // 4. Transforma os dados do banco no formato que o componente espera (FormItem),
+  //    substituindo null por string vazia ou undefined onde necessário
   const items: FormItem[] = serviceOrders.map((order) => ({
     id: order.id,
     name: order.name,
@@ -60,5 +70,6 @@ export default async function Home() {
     updatedAt: order.updatedAt ?? undefined,
   }));
 
+  // 5. Passa os dados para o Client Component que gerencia toda a interatividade
   return <HomeClient initialItems={items} />;
 }

@@ -4,7 +4,6 @@ import { numberToWords } from "../../lib/numberToWords";
 
 interface ReceiptTemplateProps {
   item: FormItem;
-  qrCodeDataUrl: string;
 }
 
 function formatDateExtensive(date: Date | string | undefined): string {
@@ -18,7 +17,7 @@ function formatDateExtensive(date: Date | string | undefined): string {
 }
 
 const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
-  ({ item, qrCodeDataUrl }, ref) => {
+  ({ item }, ref) => {
     const clientName = item.empresa?.trim() || item.name;
     const priceFormatted = item.price != null
       ? item.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
@@ -26,11 +25,7 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
     const priceExtensive = item.price != null ? numberToWords(item.price) : "—";
     const dateFormatted = formatDateExtensive(item.createdAt);
 
-    const highlight: React.CSSProperties = { color: "#c8a000", fontWeight: 600 };
-    const highlightRed: React.CSSProperties = { color: "#c00000", fontWeight: 700 };
-    const highlightGreen: React.CSSProperties = { color: "#1a7a1a", fontWeight: 600 };
-    const highlightBlue: React.CSSProperties = { color: "#1a3a8a", fontWeight: 600 };
-    const highlightOrange: React.CSSProperties = { color: "#b35900", fontWeight: 600 };
+    const bold: React.CSSProperties = { fontWeight: 700 };
 
     return (
       <div
@@ -50,9 +45,9 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <img
-            src="/logo-phc.png"
-            alt="PHC Tecnologia Inverter"
-            style={{ maxWidth: "260px", maxHeight: "80px", objectFit: "contain" }}
+            src="/logo.phc.png"
+            alt="PHC Eletrônica Industrial"
+            style={{ maxWidth: "320px", maxHeight: "100px", objectFit: "contain" }}
             crossOrigin="anonymous"
           />
         </div>
@@ -66,9 +61,9 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
         </div>
         <div style={{ marginBottom: "24px" }}>
           <span style={{ fontWeight: 700 }}>E-mail</span>:{" "}
-          <span style={{ color: "#1a3a8a" }}>phc771@gmail.com</span>{" "}
+          <span style={{ fontWeight: 700 }}>phc771@gmail.com</span>{" "}
           /{" "}
-          <span style={{ color: "#1a3a8a" }}>phc21575628@gmail.com</span>
+          <span style={{ fontWeight: 700 }}>phc21575628@gmail.com</span>
           &nbsp;&nbsp; CNPJ: 33593091/0001-75
         </div>
 
@@ -86,19 +81,19 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
         {/* Body text */}
         <p style={{ textAlign: "justify", marginBottom: "14px", lineHeight: 1.8 }}>
           Eu, declaro ter recebido do{" "}
-          <span style={highlightRed}>{clientName}</span>
+          <span style={bold}>{clientName}</span>
           , com sede na{" "}
-          <span style={highlightGreen}>{item.address || "—"}</span>
+          <span style={bold}>{item.address || "—"}</span>
           , CEP{" "}
-          <span style={highlightGreen}>{item.cep || "—"}</span>
+          <span style={bold}>{item.cep || "—"}</span>
           , telefone{" "}
-          <span style={highlightBlue}>{item.phone || "—"}</span>
+          <span style={bold}>{item.phone || "—"}</span>
           , a importância de{" "}
-          <span style={highlight}>R$ {priceFormatted.replace("R$", "").trim()}</span>
+          <span style={bold}>R$ {priceFormatted.replace("R$", "").trim()}</span>
           {" "}
-          <span style={highlightOrange}>({priceExtensive})</span>{" "}
+          <span style={bold}>({priceExtensive})</span>{" "}
           referente ao conserto de um{" "}
-          <span style={highlight}>{item.aparelho}</span>.
+          <span style={bold}>{item.aparelho}</span>.
         </p>
 
         {/* Date */}
@@ -116,13 +111,12 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
             gap: "10px",
           }}
         >
-          {qrCodeDataUrl && (
-            <img
-              src={qrCodeDataUrl}
-              alt="QR Code Pix"
-              style={{ width: "120px", height: "120px" }}
-            />
-          )}
+          <img
+            src="/image.png"
+            alt="QR Code Pix"
+            style={{ width: "120px", height: "120px" }}
+            crossOrigin="anonymous"
+          />
           <div>
             <div style={{ marginBottom: "4px" }}>
               <span style={{ fontWeight: 700 }}>Nome:</span> Paulo Henrique das Chagas
