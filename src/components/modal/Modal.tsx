@@ -1,60 +1,134 @@
 "use client";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./Modal.module.css";
+
 interface UserModalProps {
   items: FormItem;
   closeModal: () => void;
-  onChangeStatus: (status: FormItem['status']) => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onChangeStatus: (status: FormItem["status"]) => void;
 }
-export default function Modal({ items, closeModal, onChangeStatus, onEdit, onDelete }: UserModalProps) {
 
+export default function Modal({ items, closeModal, onChangeStatus }: UserModalProps) {
+  const priceFormatted =
+    items.price != null
+      ? items.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+      : "—";
+
+  const dateFormatted = items.createdAt
+    ? new Date(items.createdAt).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "—";
 
   return (
-    <div className={styles.modal}>
-      <div className={styles.modal_content}>
-        <button className={styles.close} onClick={closeModal}>
-          <span>&times;</span>
-        </button>
+    <div className={styles.modal} onClick={closeModal}>
+      <div className={styles.modal_content} onClick={(e) => e.stopPropagation()}>
 
-        <div key={items.id} className={styles.modal_body}>
-          <div>
-            <select value={items.status} onChange={(e) => onChangeStatus(e.target.value as FormItem['status'])}>
-              <option value="novo">Novo</option>
-              <option value="aprovado">Aprovado</option>
-              <option value="reprovado">Reprovado</option>
-              <option value="pago">Pago</option>
-              <option value="pronto">Pronto</option>
-              <option value="entregue">Entregue</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
+        {/* Header */}
+        <div className={styles.modal_header}>
+          <h2 className={styles.modal_title}>{items.name}</h2>
+          <button className={styles.close} onClick={closeModal} title="Fechar">
+            &times;
+          </button>
+        </div>
+
+        {/* Status */}
+        <div className={styles.status_section}>
+          <span className={styles.status_label}>Status da O.S.</span>
+          <select
+            className={styles.status_select}
+            value={items.status}
+            onChange={(e) => onChangeStatus(e.target.value as FormItem["status"])}
+          >
+            <option value="novo">Novo</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="reprovado">Reprovado</option>
+            <option value="pago">Pago</option>
+            <option value="pronto">Pronto</option>
+            <option value="entregue">Entregue</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        {/* Info grid */}
+        <div className={styles.modal_body}>
+          {items.empresa && (
+            <div className={`${styles.info_row} ${styles.info_row_full}`}>
+              <span className={styles.info_label}>Empresa</span>
+              <span className={styles.info_value}>{items.empresa}</span>
+            </div>
+          )}
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>Telefone</span>
+            <span className={styles.info_value}>{items.phone || "—"}</span>
           </div>
-          <div>
-            <h2>{items.name}</h2>
-            <p>Telefone: {items.phone}</p>
-            <p>E-mail: {items.email}</p>
-            <p>Endereço: {items.address}</p>
-            <p>Marca: {items.brand}</p>
-            <p>Modelo: {items.model}</p>
-            <p>Número de série: {items.serialNumber}</p>
-            <p>Defeitos: {items.defects}</p>
-            <p>Histórico de defeitos: {items.defectsHistory}</p>
-            <p>Data de criação: {items.createdAt ? new Date(items.createdAt).toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }) : "—"}</p>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>CEP</span>
+            <span className={styles.info_value}>{items.cep || "—"}</span>
           </div>
-          <div className={styles.modal_actions}>
-            <button type="button" className={styles.editButton} onClick={onEdit}>
-              Editar
-            </button>
-            <button type="button" className={styles.deleteButton} onClick={onDelete}>
-              Excluir
-            </button>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>E-mail</span>
+            <span className={styles.info_value}>{items.email || "—"}</span>
+          </div>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>Data de criação</span>
+            <span className={styles.info_value}>{dateFormatted}</span>
+          </div>
+
+          <div className={`${styles.info_row} ${styles.info_row_full}`}>
+            <span className={styles.info_label}>Endereço</span>
+            <span className={styles.info_value}>{items.address || "—"}</span>
+          </div>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>Aparelho</span>
+            <span className={styles.info_value}>{items.aparelho}</span>
+          </div>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>Marca</span>
+            <span className={styles.info_value}>{items.brand || "—"}</span>
+          </div>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>Modelo</span>
+            <span className={styles.info_value}>{items.model || "—"}</span>
+          </div>
+
+          <div className={styles.info_row}>
+            <span className={styles.info_label}>Número de série</span>
+            <span className={styles.info_value}>{items.serialNumber || "—"}</span>
+          </div>
+
+          <div className={`${styles.info_row} ${styles.info_row_full}`}>
+            <span className={styles.info_label}>Defeitos</span>
+            <span className={styles.info_value}>{items.defects}</span>
+          </div>
+
+          <div className={`${styles.info_row} ${styles.info_row_full}`}>
+            <span className={styles.info_label}>Histórico de defeitos</span>
+            <span className={styles.info_value}>{items.defectsHistory || "—"}</span>
+          </div>
+
+          <div className={`${styles.info_row} ${styles.info_row_full}`}>
+            <span className={styles.info_label}>Preço</span>
+            <span className={styles.info_value_price}>{priceFormatted}</span>
           </div>
         </div>
+
+        {/* Footer */}
+        <div className={styles.modal_footer}>
+          <button className={styles.closeFooterBtn} onClick={closeModal}>
+            Fechar
+          </button>
+        </div>
+
       </div>
     </div>
   );
