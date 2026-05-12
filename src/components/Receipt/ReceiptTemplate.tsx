@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import Image from "next/image";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import { numberToWords } from "../../lib/numberToWords";
 
@@ -18,7 +19,7 @@ function formatDateExtensive(date: Date | string | undefined): string {
 
 const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
   ({ item }, ref) => {
-    const clientName = item.empresa?.trim() || item.name;
+    const clientName = item.empresa?.trim() || item.name?.trim() || "—";
     const priceFormatted = item.price != null
       ? item.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
       : "—";
@@ -44,11 +45,15 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
       >
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <img
+          <Image
             src="/logo.phc.png"
             alt="PHC Eletrônica Industrial"
-            style={{ maxWidth: "320px", maxHeight: "100px", objectFit: "contain" }}
+            width={320}
+            height={100}
+            priority
+            unoptimized
             crossOrigin="anonymous"
+            style={{ maxWidth: "320px", maxHeight: "100px", width: "auto", height: "auto", objectFit: "contain" }}
           />
         </div>
 
@@ -93,7 +98,7 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
           {" "}
           <span style={bold}>({priceExtensive})</span>{" "}
           referente ao conserto de um{" "}
-          <span style={bold}>{item.aparelho}</span>.
+          <span style={bold}>{item.aparelho ?? "—"}</span>.
         </p>
 
         {/* Date */}
@@ -111,11 +116,15 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
             gap: "10px",
           }}
         >
-          <img
+          <Image
             src="/image.png"
             alt="QR Code Pix"
-            style={{ width: "120px", height: "120px" }}
+            width={120}
+            height={120}
+            priority
+            unoptimized
             crossOrigin="anonymous"
+            style={{ width: "120px", height: "120px" }}
           />
           <div>
             <div style={{ marginBottom: "4px" }}>

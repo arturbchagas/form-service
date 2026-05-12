@@ -28,11 +28,25 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
 
         {/* Header */}
         <div className={styles.modal_header}>
-          <h2 className={styles.modal_title}>{items.name}</h2>
+          <h2 className={styles.modal_title}>{items.name?.trim() ? items.name : "Ordem de serviço"}</h2>
           <button className={styles.close} onClick={closeModal} title="Fechar">
             &times;
           </button>
         </div>
+
+        {/* Fotos do aparelho — primeiro bloco de conteúdo, centralizado */}
+        {items.deviceImages && items.deviceImages.length > 0 && (
+          <div className={styles.deviceImagesBlock}>
+            <div className={styles.deviceImagesInner}>
+              {items.deviceImages.map((src, i) => (
+                <figure key={`${i}-${src.slice(0, 48)}`} className={styles.deviceFigure}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- data URL do usuário */}
+                  <img src={src} alt={`Foto do aparelho ${i + 1}`} className={styles.deviceImg} />
+                </figure>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Status */}
         <div className={styles.status_section}>
@@ -88,7 +102,7 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
 
           <div className={styles.info_row}>
             <span className={styles.info_label}>Aparelho</span>
-            <span className={styles.info_value}>{items.aparelho}</span>
+            <span className={styles.info_value}>{items.aparelho || "—"}</span>
           </div>
 
           <div className={styles.info_row}>
@@ -108,7 +122,7 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
 
           <div className={`${styles.info_row} ${styles.info_row_full}`}>
             <span className={styles.info_label}>Defeitos</span>
-            <span className={styles.info_value}>{items.defects}</span>
+            <span className={styles.info_value}>{items.defects || "—"}</span>
           </div>
 
           <div className={`${styles.info_row} ${styles.info_row_full}`}>

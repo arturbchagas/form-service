@@ -34,20 +34,22 @@ model User {
 
 model ServiceOrder {
   id String @id @default(cuid()) @unique
-  name String 
+  name           String?
   empresa        String?
-  phone String?
-  cep            String
-  email String?
-  address String?
-  aparelho       String
-  brand String?
-  model String?
-  serialNumber String? @unique
-  defects String
+  phone          String?
+  cep            String?
+  email          String?
+  address        String?
+  aparelho       String?
+  brand          String?
+  model          String?
+  serialNumber   String? @unique
+  defects        String?
   defectsHistory String?
+  /// URLs em base64 (data URL) das fotos do aparelho; ordem = ordem de exibição.
+  deviceImages   String[] @default([])
   price          Float?
-  status OrderStatus @default(novo)
+  status         OrderStatus @default(novo)
   userId         String?
   user           User?    @relation(fields: [userId], references: [id])
   createdAt      DateTime? @default(now())

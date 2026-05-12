@@ -65,7 +65,7 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
 
   // Exibe confirmação antes de deletar e remove da lista local após sucesso
   async function handleDelete(item: FormItem) {
-    if (!confirm(`Excluir a O.S. de "${item.name}"?`)) return;
+    if (!confirm(`Excluir a O.S. de "${item.name?.trim() || "sem identificação"}"?`)) return;
     try {
       await deleteServiceOrder(item.id);
       // Remove do estado local para atualizar a tabela sem recarregar a página
@@ -131,7 +131,7 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
   // Busca em nome, empresa, aparelho e data de criação.
   const filteredItems = items.filter((item) => {
     if (!searchLower) return true; // Sem busca = mostra tudo
-    const matchesName = item.name.toLowerCase().includes(searchLower);
+    const matchesName = (item.name ?? "").toLowerCase().includes(searchLower);
     const matchesEmpresa = (item.empresa ?? "").toLowerCase().includes(searchLower);
     const matchesAparelho = (item.aparelho ?? "").toLowerCase().includes(searchLower);
     const dateStr = formatDate(item.createdAt);

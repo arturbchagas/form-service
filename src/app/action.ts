@@ -1,12 +1,20 @@
 "use server"; // Diretiva do Next.js: tudo neste arquivo roda exclusivamente no servidor, nunca no browser
 
 import prisma from "@/lib/prisma";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { FormItem } from "@/types/Form-itens/FormItem";
 import { z } from "zod";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { MAX_DEVICE_IMAGES } from "@/lib/readImageDataUrls";
+
+// Converte string vazia ou só espaços em null para persistência no PostgreSQL.
+function emptyToNull(value: string | undefined | null): string | null {
+    if (value == null) return null;
+    const t = value.trim();
+    return t === "" ? null : t;
+}
 
 // Helper reutilizável: lê a sessão ativa e retorna o ID do usuário logado.
 // Se não houver sessão (usuário não autenticado), lança erro imediatamente.
@@ -24,24 +32,34 @@ async function getCurrentUserId(): Promise<string> {
 
 const orderStatusSchema = z.nativeEnum(OrderStatus); // Aceita apenas os valores do enum do banco
 
+const optionalEmail = z.string().refine(
+    (s) => s.trim() === "" || z.string().email().safeParse(s.trim()).success,
+    { message: "E-mail inválido" }
+);
+
+const deviceImagesSchema = z
+    .array(z.string().max(6_000_000))
+    .max(MAX_DEVICE_IMAGES)
+    .optional()
+    .default([]);
+
+const looseOptionalString = z.coerce.string();
+
 const createServiceOrderSchema = z.object({
-    name: z.string().min(1, "Nome é obrigatório"),
-    empresa: z.string().optional(),
-    phone: z.string().optional(),
-    cep: z.string().min(1, "CEP é obrigatório"),
-    email: z
-        .string()
-        .email("E-mail inválido")
-        .optional()
-        .or(z.literal("")), // Aceita e-mail válido OU string vazia
-    address: z.string().optional(),
-    aparelho: z.string().min(1, "Aparelho é obrigatório"),
-    brand: z.string().optional(),
-    model: z.string().optional(),
-    serialNumber: z.string().optional(),
-    defects: z.string().min(1, "Descrição do defeito é obrigatória"),
-    defectsHistory: z.string().optional(),
-    status: orderStatusSchema.default(OrderStatus.novo), // Status padrão ao criar
+    name: looseOptionalString.max(500),
+    empresa: looseOptionalString,
+    phone: looseOptionalString,
+    cep: looseOptionalString.max(20),
+    email: optionalEmail,
+    address: looseOptionalString,
+    aparelho: looseOptionalString.max(500),
+    brand: looseOptionalString,
+    model: looseOptionalString,
+    serialNumber: looseOptionalString,
+    defects: looseOptionalString.max(10_000),
+    defectsHistory: looseOptionalString,
+    deviceImages: deviceImagesSchema,
+    status: orderStatusSchema.default(OrderStatus.novo),
 });
 
 const updateStatusSchema = z.object({
@@ -51,18 +69,19 @@ const updateStatusSchema = z.object({
 
 const updateServiceOrderSchema = z.object({
     id: z.string().min(1, "Id é obrigatório"),
-    name: z.string().min(1, "Nome é obrigatório"),
-    empresa: z.string().optional(),
-    phone: z.string().optional(),
-    cep: z.string().min(1, "CEP é obrigatório"),
-    email: z.string().email("E-mail inválido").optional().or(z.literal("")),
-    address: z.string().optional(),
-    aparelho: z.string().min(1, "Aparelho é obrigatório"),
-    brand: z.string().optional(),
-    model: z.string().optional(),
-    serialNumber: z.string().optional(),
-    defects: z.string().min(1, "Descrição do defeito é obrigatória"),
-    defectsHistory: z.string().optional(),
+    name: looseOptionalString.max(500),
+    empresa: looseOptionalString,
+    phone: looseOptionalString,
+    cep: looseOptionalString.max(20),
+    email: optionalEmail,
+    address: looseOptionalString,
+    aparelho: looseOptionalString.max(500),
+    brand: looseOptionalString,
+    model: looseOptionalString,
+    serialNumber: looseOptionalString,
+    defects: looseOptionalString.max(10_000),
+    defectsHistory: looseOptionalString,
+    deviceImages: deviceImagesSchema,
     status: orderStatusSchema,
 });
 
@@ -74,6 +93,40 @@ const updatePriceSchema = z.object({
 const deleteServiceOrderSchema = z.object({
     id: z.string().min(1, "Id é obrigatório"),
 });
+
+type OrderFormFields = {
+    name: string;
+    empresa: string;
+    phone: string;
+    cep: string;
+    email: string;
+    address: string;
+    aparelho: string;
+    brand: string;
+    model: string;
+    serialNumber: string;
+    defects: string;
+    defectsHistory: string;
+    deviceImages: string[];
+};
+
+function orderFieldsForPrisma(fields: OrderFormFields) {
+    return {
+        name: emptyToNull(fields.name),
+        empresa: emptyToNull(fields.empresa),
+        phone: emptyToNull(fields.phone),
+        cep: emptyToNull(fields.cep),
+        email: emptyToNull(fields.email),
+        address: emptyToNull(fields.address),
+        aparelho: emptyToNull(fields.aparelho),
+        brand: emptyToNull(fields.brand),
+        model: emptyToNull(fields.model),
+        serialNumber: emptyToNull(fields.serialNumber),
+        defects: emptyToNull(fields.defects),
+        defectsHistory: emptyToNull(fields.defectsHistory),
+        deviceImages: fields.deviceImages,
+    };
+}
 
 // --- CREATE ---
 // Cria uma nova ordem de serviço associada ao usuário logado.
@@ -100,13 +153,19 @@ export async function createServiceOrder(
 
     const validData = parseResult.data;
 
+    const { status, ...rest } = validData;
+    void status;
+
     // 4. Insere no banco via Prisma, forçando status "novo" e vinculando ao userId
     const created = await prisma.serviceOrder.create({
         data: {
-            ...validData,
+            ...orderFieldsForPrisma({
+                ...rest,
+                deviceImages: validData.deviceImages ?? [],
+            }),
             status: OrderStatus.novo, // Toda OS começa com status "novo"
             userId,                   // Liga a OS ao usuário que a criou
-        },
+        } as Prisma.ServiceOrderUncheckedCreateInput,
     });
 
     // 5. Invalida o cache da página "/" para exibir a nova OS imediatamente
@@ -138,13 +197,19 @@ export async function updateServiceOrder(
         );
     }
 
-    const { id: orderId, ...data } = parseResult.data;
+    const { id: orderId, status, ...rest } = parseResult.data;
 
     // 3. Atualiza no banco filtrando por id E userId — impede que um usuário
     //    edite uma OS que não é dele (segurança extra além do middleware)
     const updated = await prisma.serviceOrder.update({
         where: { id: orderId, userId },
-        data,
+        data: {
+            ...orderFieldsForPrisma({
+                ...rest,
+                deviceImages: rest.deviceImages ?? [],
+            }),
+            status,
+        } as Prisma.ServiceOrderUncheckedUpdateInput,
     });
 
     revalidatePath("/");

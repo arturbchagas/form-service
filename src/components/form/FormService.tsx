@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./FormService.module.css";
+import DeviceImagePicker from "./DeviceImagePicker";
 
 // Tipo para criação: exclui campos gerados automaticamente pelo banco
 type CreateServiceOrderInput = Omit<FormItem, "id" | "createdAt" | "updatedAt">;
@@ -36,6 +37,7 @@ export default function FormService({
   const [serialNumber, setSerialNumber] = useState("");
   const [defects, setDefects] = useState("");
   const [defectsHistory, setDefectsHistory] = useState("");
+  const [deviceImages, setDeviceImages] = useState<string[]>([]);
 
   // Quando itemToEdit muda (usuário clicou em editar uma OS),
   // preenche todos os campos com os dados da OS existente e abre o formulário.
@@ -43,7 +45,7 @@ export default function FormService({
   useEffect(() => {
     if (itemToEdit) {
       setIsOpen(true);
-      setName(itemToEdit.name);
+      setName(itemToEdit.name ?? "");
       setEmpresa(itemToEdit.empresa ?? "");
       setPhone(itemToEdit.phone ?? "");
       setCep(itemToEdit.cep ?? "");
@@ -53,8 +55,9 @@ export default function FormService({
       setBrand(itemToEdit.brand ?? "");
       setModel(itemToEdit.model ?? "");
       setSerialNumber(itemToEdit.serialNumber ?? "");
-      setDefects(itemToEdit.defects);
+      setDefects(itemToEdit.defects ?? "");
       setDefectsHistory(itemToEdit.defectsHistory ?? "");
+      setDeviceImages(itemToEdit.deviceImages?.length ? [...itemToEdit.deviceImages] : []);
     } else {
       // Limpa o formulário quando não está editando
       setName("");
@@ -69,6 +72,7 @@ export default function FormService({
       setSerialNumber("");
       setDefects("");
       setDefectsHistory("");
+      setDeviceImages([]);
     }
   }, [itemToEdit]); // Roda sempre que itemToEdit mudar
 
@@ -89,6 +93,7 @@ export default function FormService({
       serialNumber,
       defects,
       defectsHistory,
+      deviceImages,
       status: itemToEdit?.status ?? "novo", // Mantém o status atual ao editar
     };
 
@@ -113,6 +118,7 @@ export default function FormService({
       setSerialNumber("");
       setDefects("");
       setDefectsHistory("");
+      setDeviceImages([]);
       setIsOpen(false); // Fecha o painel após enviar
     }
   };
@@ -152,7 +158,7 @@ export default function FormService({
               <h2 className={styles.sectionTitle}>Dados do cliente</h2>
               <div className={styles.fieldsGrid}>
                 <div className={styles.field}>
-                  <label htmlFor="name">Nome</label>
+                  <label htmlFor="name">Nome <span className={styles.optional}>(opcional)</span></label>
                   <input
                     id="name"
                     className={styles.input}
@@ -182,14 +188,13 @@ export default function FormService({
                   />
                 </div>
                 <div className={styles.field}>
-                  <label htmlFor="cep">CEP <span className={styles.required}>*</span></label>
+                  <label htmlFor="cep">CEP <span className={styles.optional}>(opcional)</span></label>
                   <input
                     id="cep"
                     className={styles.input}
                     value={cep}
                     onChange={(e) => setCep(e.target.value)}
                     placeholder="00000-000"
-                    required
                   />
                 </div>
                 <div className={styles.field}>
@@ -221,14 +226,13 @@ export default function FormService({
               <h2 className={styles.sectionTitle}>Dados do aparelho</h2>
               <div className={styles.fieldsGrid}>
                 <div className={styles.field}>
-                  <label htmlFor="aparelho">Aparelho <span className={styles.required}>*</span></label>
+                  <label htmlFor="aparelho">Aparelho <span className={styles.optional}>(opcional)</span></label>
                   <input
                     id="aparelho"
                     className={styles.input}
                     value={aparelho}
                     onChange={(e) => setAparelho(e.target.value)}
                     placeholder="Ex: Ar condicionado, Giroflex"
-                    required
                   />
                 </div>
                 <div className={styles.field}>
@@ -262,7 +266,13 @@ export default function FormService({
                   />
                 </div>
                 <div className={`${styles.field} ${styles.fieldFull}`}>
-                  <label htmlFor="defects">Defeitos</label>
+                  <span className={styles.fieldLabelStatic}>
+                    Fotos do aparelho <span className={styles.optional}>(opcional)</span>
+                  </span>
+                  <DeviceImagePicker images={deviceImages} onChange={setDeviceImages} />
+                </div>
+                <div className={`${styles.field} ${styles.fieldFull}`}>
+                  <label htmlFor="defects">Defeitos <span className={styles.optional}>(opcional)</span></label>
                   <textarea
                     id="defects"
                     className={styles.textarea}
