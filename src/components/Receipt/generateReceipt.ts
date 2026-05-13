@@ -1,6 +1,16 @@
 import { FormItem } from "../../types/Form-itens/FormItem";
+import type { ReceiptClientPayload } from "./receiptTypes";
 
-export async function generateReceiptPDF(item: FormItem): Promise<void> {
+export async function generateReceiptPDF(
+  item: FormItem,
+  client: ReceiptClientPayload
+): Promise<void> {
+  if (item.price == null) {
+    throw new Error("Preço da O.S. é obrigatório para gerar o recibo.");
+  }
+
+  const totalPrice = item.price;
+
   const [
     { default: jsPDF },
     { default: html2canvas },
@@ -15,7 +25,6 @@ export async function generateReceiptPDF(item: FormItem): Promise<void> {
     import("./ReceiptTemplate"),
   ]);
 
-  // Create a hidden container
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.top = "-9999px";
@@ -23,16 +32,18 @@ export async function generateReceiptPDF(item: FormItem): Promise<void> {
   container.style.zIndex = "-1";
   document.body.appendChild(container);
 
-  // Render the receipt component
   const root = createRoot(container);
+
+  const receiptDate = new Date();
 
   await new Promise<void>((resolve) => {
     root.render(
       React.createElement(ReceiptTemplate, {
-        item,
+        totalPrice,
+        client,
+        receiptDate,
       })
     );
-    // Wait for next paint
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
   });
 
@@ -65,7 +76,6 @@ export async function generateReceiptPDF(item: FormItem): Promise<void> {
     if (imgHeightInPdf <= pdfHeight) {
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeightInPdf);
     } else {
-      // Scale to fit the page height
       const scaledWidth = pdfHeight / ratio;
       const offsetX = (pdfWidth - scaledWidth) / 2;
       pdf.addImage(imgData, "PNG", offsetX, 0, scaledWidth, pdfHeight);

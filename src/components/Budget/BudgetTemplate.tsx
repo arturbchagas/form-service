@@ -62,6 +62,12 @@ const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
     textAlign: "center",
   };
 
+  /** Ajuda o `jspdf.html` + `autoPaging: "text"` a não partir blocos no meio. */
+  const avoidPageSplit: React.CSSProperties = {
+    breakInside: "avoid",
+    pageBreakInside: "avoid",
+  };
+
   return (
     <div
       ref={ref}
@@ -173,72 +179,86 @@ const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
       </table>
 
       <div style={{ fontSize: "11px", lineHeight: 1.5, marginTop: "8px" }}>
-        <div style={{ fontWeight: 700, fontSize: "12px", marginBottom: "8px" }}>
+        <div
+          style={{
+            fontWeight: 700,
+            fontSize: "12px",
+            marginBottom: "8px",
+            ...avoidPageSplit,
+          }}
+        >
           Termos e Condições do Orçamento
         </div>
 
-        <p style={{ fontWeight: 700, margin: "0 0 4px" }}>1. Forma de Pagamento</p>
-        <p style={{ margin: "0 0 8px" }}>
+        <p style={{ fontWeight: 700, margin: "0 0 4px", ...avoidPageSplit }}>1. Forma de Pagamento</p>
+        <p style={{ margin: "0 0 8px", ...avoidPageSplit }}>
           O valor total do orçamento será dividido em duas parcelas:
         </p>
         <ul style={{ margin: "0 0 10px 18px", padding: 0 }}>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             Primeira Parcela: 50% do valor total, a ser paga no ato da aprovação do orçamento.
           </li>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             Segunda Parcela: Os 50% restantes, a serem pagos na entrega do equipamento após o reparo.
           </li>
         </ul>
-        <p style={{ fontWeight: 700, margin: "0 0 4px" }}>Observação:</p>
+        <p style={{ fontWeight: 700, margin: "0 0 4px", ...avoidPageSplit }}>Observação:</p>
         <ul style={{ margin: "0 0 12px 18px", padding: 0 }}>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             Este orçamento não inclui custos de instalação, parametrização ou transporte do equipamento.
           </li>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             A programação ou parametrização original do equipamento pode ser alterada ou apagada durante o
             procedimento de reparo.
           </li>
         </ul>
 
-        <p style={{ fontWeight: 700, margin: "0 0 4px" }}>2. Garantia de Serviço</p>
-        <p style={{ margin: "0 0 6px" }}>
+        <p style={{ fontWeight: 700, margin: "0 0 4px", ...avoidPageSplit }}>2. Garantia de Serviço</p>
+        <p style={{ margin: "0 0 6px", ...avoidPageSplit }}>
           A garantia do serviço é de 90 (noventa) dias, contados a partir da data de entrega do equipamento.
         </p>
-        <p style={{ fontWeight: 700, margin: "0 0 4px" }}>Observação:</p>
-        <p style={{ margin: "0 0 6px" }}>
+        <p style={{ fontWeight: 700, margin: "0 0 4px", ...avoidPageSplit }}>Observação:</p>
+        <p style={{ margin: "0 0 6px", ...avoidPageSplit }}>
           A garantia será automaticamente anulada nas seguintes situações:
         </p>
         <ul style={{ margin: "0 0 12px 18px", padding: 0 }}>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             Mau uso: Queda, derramamento de líquidos ou uso indevido do equipamento.
           </li>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             Modificações não autorizadas: Alterações realizadas por pessoas não autorizadas.
           </li>
-          <li style={{ marginBottom: "4px" }}>
+          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
             Violação de segurança: Remoção, alteração ou ilegibilidade do número de série, bem como dos lacres de
             segurança do produto.
           </li>
         </ul>
 
-        <p style={{ margin: "0 0 10px" }}>
+        <p style={{ margin: "0 0 10px", ...avoidPageSplit }}>
           <strong>3. DIAGNÓSTICO TÉCNICO:</strong> O valor orçado refere-se às avarias identificadas nos testes
           iniciais. Devido à interdependência dos circuitos eletrônicos, caso surjam falhas ocultas em estágios
           secundários (ex: placas de controle, processamento ou comunicação) após a restauração do sistema
           principal, um orçamento complementar será submetido à aprovação prévia.
         </p>
-        <p style={{ margin: "0 0 10px" }}>
+        <p style={{ margin: "0 0 10px", ...avoidPageSplit }}>
           <strong>4. VALIDADE E REAJUSTE:</strong> Este orçamento tem validade de 48 horas. Após este prazo, os
           valores podem sofrer reajuste imediato conforme a variação de custo dos componentes importados junto aos
           fornecedores.
         </p>
-        <p style={{ margin: "0 0 14px" }}>
+        <p style={{ margin: "0 0 14px", ...avoidPageSplit }}>
           <strong>5. PEÇAS SUBSTITUÍDAS:</strong> As peças danificadas substituídas durante o serviço estarão
           disponíveis para retirada pelo cliente por até 7 dias após a entrega do equipamento; após este prazo,
           serão destinadas ao descarte ecológico.
         </p>
 
-        <p style={{ margin: "12px 0 0", borderTop: "1px solid #ccc", paddingTop: "12px" }}>
+        <p
+          style={{
+            margin: "12px 0 0",
+            borderTop: "1px solid #ccc",
+            paddingTop: "12px",
+            ...avoidPageSplit,
+          }}
+        >
           Caso tenha alguma dúvida sobre os termos ou precise de mais detalhes, estou à disposição para ajudar.
         </p>
       </div>
@@ -250,6 +270,7 @@ const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
           flexDirection: "column",
           alignItems: "flex-start",
           gap: "10px",
+          ...avoidPageSplit,
         }}
       >
         <Image
