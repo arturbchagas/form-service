@@ -1,139 +1,137 @@
 import React, { forwardRef } from "react";
 import Image from "next/image";
-import { FormItem } from "../../types/Form-itens/FormItem";
 import { numberToWords } from "../../lib/numberToWords";
+import { RECEIPT_ISSUER, RECEIPT_ISSUER_DEFAULT_LOCATION } from "./receiptIssuer";
+import type { ReceiptClientPayload } from "./receiptTypes";
 
-interface ReceiptTemplateProps {
-  item: FormItem;
+export interface ReceiptTemplateProps {
+  totalPrice: number;
+  client: ReceiptClientPayload;
+  /** Data da linha local (momento da confirmação no modal). */
+  receiptDate: Date;
 }
 
-function formatDateExtensive(date: Date | string | undefined): string {
-  if (!date) return "—";
-  const d = new Date(date);
-  return d.toLocaleDateString("pt-BR", {
-    day: "numeric",
-    month: "long",
+function formatDateCityLine(date: Date): string {
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
 }
 
-const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
-  ({ item }, ref) => {
-    const clientName = item.empresa?.trim() || item.name?.trim() || "—";
-    const priceFormatted = item.price != null
-      ? item.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-      : "—";
-    const priceExtensive = item.price != null ? numberToWords(item.price) : "—";
-    const dateFormatted = formatDateExtensive(item.createdAt);
+function capitalizeFirstSentence(s: string): string {
+  if (!s || s === "—") return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
-    const bold: React.CSSProperties = { fontWeight: 700 };
+function formatMarcaModelo(brand: string, model: string): string {
+  const b = brand.trim();
+  const m = model.trim();
+  if (b && m) return `${b} / ${m}`;
+  return b || m || "—";
+}
+
+const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
+  ({ totalPrice, client, receiptDate }, ref) => {
+    const priceFormatted = totalPrice.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+    const priceExtensive = capitalizeFirstSentence(numberToWords(totalPrice));
+
+    const dateLine = `${client.city} - ${client.state}, ${formatDateCityLine(receiptDate)}.`;
+
+    const listItem: React.CSSProperties = {
+      margin: "0 0 8px 0",
+      paddingLeft: "4px",
+      lineHeight: 1.55,
+    };
 
     return (
       <div
         ref={ref}
         style={{
           width: "794px",
-          minHeight: "1123px",
           backgroundColor: "#fff",
           fontFamily: "Arial, sans-serif",
-          fontSize: "14px",
+          fontSize: "15px",
           color: "#000",
-          padding: "60px 70px",
+          padding: "56px 72px 64px",
           boxSizing: "border-box",
-          lineHeight: 1.6,
+          lineHeight: 1.55,
         }}
       >
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+        <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <Image
             src="/logo.phc.png"
             alt="PHC Eletrônica Industrial"
-            width={320}
-            height={100}
+            width={300}
+            height={94}
             priority
             unoptimized
             crossOrigin="anonymous"
-            style={{ maxWidth: "320px", maxHeight: "100px", width: "auto", height: "auto", objectFit: "contain" }}
+            style={{ maxWidth: "300px", height: "auto", objectFit: "contain" }}
           />
         </div>
 
-        {/* Address block */}
-        <div style={{ marginBottom: "6px" }}>
-          <span style={{ fontWeight: 700 }}>Rua:</span> Boaventura Pereira de Alencar, nº 01 &nbsp;&nbsp; e Rua: Expedito Granja Arraes, nº 1156
+        <div style={{ textAlign: "center", marginBottom: "8px", fontWeight: 700, fontSize: "17px" }}>
+          VALOR: {priceFormatted}
         </div>
-        <div style={{ marginBottom: "6px" }}>
-          Araripina-PE &nbsp;&nbsp; Telefone: (87) 99928-2633
-        </div>
-        <div style={{ marginBottom: "24px" }}>
-          <span style={{ fontWeight: 700 }}>E-mail</span>:{" "}
-          <span style={{ fontWeight: 700 }}>phc771@gmail.com</span>{" "}
-          /{" "}
-          <span style={{ fontWeight: 700 }}>phc21575628@gmail.com</span>
-          &nbsp;&nbsp; CNPJ: 33593091/0001-75
-        </div>
+        <div style={{ textAlign: "center", marginBottom: "32px", fontSize: "15px" }}>({priceExtensive})</div>
 
-        {/* Title */}
-        <div
-          style={{
-            fontWeight: 700,
-            fontSize: "16px",
-            marginBottom: "14px",
-          }}
-        >
-          Recibo de Pagamento
-        </div>
-
-        {/* Body text */}
-        <p style={{ textAlign: "justify", marginBottom: "14px", lineHeight: 1.8 }}>
-          Eu, declaro ter recebido do{" "}
-          <span style={bold}>{clientName}</span>
-          , com sede na{" "}
-          <span style={bold}>{item.address || "—"}</span>
-          , CEP{" "}
-          <span style={bold}>{item.cep || "—"}</span>
-          , telefone{" "}
-          <span style={bold}>{item.phone || "—"}</span>
-          , a importância de{" "}
-          <span style={bold}>R$ {priceFormatted.replace("R$", "").trim()}</span>
-          {" "}
-          <span style={bold}>({priceExtensive})</span>{" "}
-          referente ao conserto de um{" "}
-          <span style={bold}>{item.aparelho ?? "—"}</span>.
+        <p style={{ margin: "0 0 10px" }}>
+          <strong>Recebemos de:</strong> {client.clientName}
+        </p>
+        <p style={{ margin: "0 0 28px" }}>
+          <strong>CPF/CNPJ:</strong> {client.clientDocument}
         </p>
 
-        {/* Date */}
-        <p style={{ marginBottom: "40px" }}>
-          Data:{" "}
-          <span style={{ fontWeight: 500 }}>{dateFormatted}</span>
-        </p>
+        <p style={{ margin: "0 0 16px" }}>Referente ao PAGAMENTO PARCIAL (SINAL DE 50% DO VALOR TOTAL) para início do serviço no item abaixo descrito:</p>
 
-        {/* QR Code + payment info */}
-        <div
+        <ul
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: "10px",
+            margin: "0 0 28px 0",
+            padding: "0 0 0 22px",
+            listStyle: "none",
           }}
         >
-          <Image
-            src="/image.png"
-            alt="QR Code Pix"
-            width={120}
-            height={120}
-            priority
-            unoptimized
-            crossOrigin="anonymous"
-            style={{ width: "120px", height: "120px" }}
-          />
-          <div>
-            <div style={{ marginBottom: "4px" }}>
-              <span style={{ fontWeight: 700 }}>Nome:</span> Paulo Henrique das Chagas
-            </div>
-            <div>
-              <span style={{ fontWeight: 700 }}>Chave Pix:</span> 33.593.091/0001-75
-            </div>
-          </div>
+          <li style={listItem}>
+            <span style={{ marginRight: "8px", fontWeight: 700 }}>*</span>
+            <strong>EQUIPAMENTO:</strong> {client.equipmentType}
+          </li>
+          <li style={listItem}>
+            <span style={{ marginRight: "8px", fontWeight: 700 }}>*</span>
+            <strong>MARCA/MODELO:</strong> {formatMarcaModelo(client.brand, client.model)}
+          </li>
+          <li style={{ ...listItem, marginBottom: 0 }}>
+            <span style={{ marginRight: "8px", fontWeight: 700 }}>*</span>
+            <strong>Nº DE SÉRIE:</strong> {client.serialNumber || "—"}
+          </li>
+        </ul>
+
+        <p style={{ margin: "0 0 36px", textAlign: "justify" }}>
+          Damos, por meio deste, quitação exclusivamente do valor acima mencionado, restando o saldo de R$ (valor_restante) a ser pago na entrega do serviço.
+        </p>
+
+        <p style={{ margin: "0 0 48px" }}>{dateLine}</p>
+
+        <div
+          style={{
+            borderTop: "1px solid #000",
+            width: "min(100%, 320px)",
+            paddingTop: "10px",
+            marginBottom: "6px",
+          }}
+        />
+        <div style={{ fontWeight: 700, marginBottom: "6px" }}>{RECEIPT_ISSUER.name}</div>
+        <div style={{ marginBottom: "4px" }}>
+        <strong>Endereço:</strong> {RECEIPT_ISSUER_DEFAULT_LOCATION.city} - {RECEIPT_ISSUER_DEFAULT_LOCATION.state}, Brasil
+        </div>
+        <div>
+          <strong>CNPJ/CPF:</strong> {RECEIPT_ISSUER.document}
+        </div>
+        <div>
+          <strong>Contato:</strong> {RECEIPT_ISSUER.phone}
         </div>
       </div>
     );

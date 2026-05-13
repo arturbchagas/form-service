@@ -5,6 +5,8 @@ import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./TableService.module.css";
 import { Eye, Pencil, DollarSign, Trash2, FileText, FileSpreadsheet, ChevronLeft, ChevronRight } from "lucide-react";
 import DeviceImagePicker from "../form/DeviceImagePicker";
+import ReceiptFormModal from "../Receipt/ReceiptFormModal";
+import type { ReceiptClientPayload } from "../Receipt/receiptTypes";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -47,6 +49,8 @@ export default function TableService({
 
   const [budgetModalItem, setBudgetModalItem] = useState<FormItem | null>(null);
   const [budgetServiceDescription, setBudgetServiceDescription] = useState("");
+
+  const [receiptModalItem, setReceiptModalItem] = useState<FormItem | null>(null);
 
   // OS selecionada para editar os dados completos (null = modal de edição fechado)
   const [editModalItem, setEditModalItem] = useState<FormItem | null>(null);
@@ -96,6 +100,23 @@ export default function TableService({
     closeBudgetModal();
     const { generateBudgetPDF } = await import("../Budget/generateBudgetPDF");
     await generateBudgetPDF(item, { serviceDescription: description });
+  }
+
+  function openReceiptModal(e: React.MouseEvent, item: FormItem) {
+    e.stopPropagation();
+    setReceiptModalItem(item);
+  }
+
+  function closeReceiptModal() {
+    setReceiptModalItem(null);
+  }
+
+  async function handleConfirmReceiptPdf(payload: ReceiptClientPayload) {
+    if (!receiptModalItem || receiptModalItem.price == null) return;
+    const os = receiptModalItem;
+    const { generateReceiptPDF } = await import("../Receipt/generateReceipt");
+    await generateReceiptPDF(os, payload);
+    closeReceiptModal();
   }
 
   // Valida e salva o preço quando o usuário confirma no modal
@@ -246,14 +267,14 @@ export default function TableService({
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionReceipt}`}
-                    title={item.price == null ? "Adicione um preço antes de gerar o recibo" : "Gerar recibo PDF"}
+                    title={
+                      item.price == null
+                        ? "Adicione um preço antes de gerar o recibo"
+                        : "Preencher dados e gerar recibo em PDF"
+                    }
                     disabled={item.price == null}
                     style={item.price == null ? { opacity: 0.4, cursor: "not-allowed" } : {}}
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const { generateReceiptPDF } = await import("../Receipt/generateReceipt");
-                      await generateReceiptPDF(item);
-                    }}
+                    onClick={(e) => openReceiptModal(e, item)}
                   >
                     <FileText size={16} />
                   </button>
@@ -355,6 +376,14 @@ export default function TableService({
             </div>
           </div>
         </div>
+      )}
+
+      {receiptModalItem && (
+        <ReceiptFormModal
+          item={receiptModalItem}
+          onClose={closeReceiptModal}
+          onConfirm={handleConfirmReceiptPdf}
+        />
       )}
 
       {/* Modal opcional: descrição do serviço antes de gerar o orçamento em PDF */}
