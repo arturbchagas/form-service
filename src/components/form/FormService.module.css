@@ -13,8 +13,8 @@
   font-size: 1rem;
   font-weight: 500;
   color: var(--foreground);
-  background: var(--form-bg, #1367bc);
-  border: 1px solid var(--form-border, #e2e8f0);
+  background: var(--form-bg, #0b1220);
+  border: 1px solid var(--form-border, #1f2937);
   border-radius: 12px;
   cursor: pointer;
   transition:
@@ -81,8 +81,8 @@
   gap: 28px;
   padding: 28px;
   margin-top: 0;
-  background: var(--form-bg, #f8fafc);
-  border: 1px solid var(--form-border, #e2e8f0);
+  background: var(--form-bg, #0b1220);
+  border: 1px solid var(--form-border, #1f2937);
   border-top: none;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -125,14 +125,20 @@
   color: var(--foreground);
 }
 
+.fieldLabelStatic {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
 .input {
   width: 100%;
   padding: 10px 12px;
   font-size: 0.9375rem;
   line-height: 1.4;
   color: var(--foreground);
-  background: var(--background);
-  border: 1px solid var(--form-border, #e2e8f0);
+  background: #111827;
+  border: 1px solid var(--form-border, #374151);
   border-radius: 8px;
   transition:
     border-color 0.2s,
@@ -140,7 +146,7 @@
 }
 
 .input::placeholder {
-  color: #94a3b8;
+  color: #9ca3af;
 }
 
 .input:focus {
@@ -210,13 +216,13 @@
 
 @media (prefers-color-scheme: dark) {
   .form {
-    --form-bg: rgba(255, 255, 255, 0.04);
-    --form-border: rgba(255, 255, 255, 0.12);
+    --form-bg: #0b1220;
+    --form-border: #1f2937;
   }
 
   .input {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    background: #111827;
+    border-color: #374151;
   }
 
   .input:focus {

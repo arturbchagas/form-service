@@ -13,18 +13,19 @@ import { OrderStatus } from "@prisma/client";
 // Tipo que representa uma linha do banco como o Prisma retorna
 interface ServiceOrderRow {
   id: string;
-  name: string;
+  name: string | null;
   empresa: string | null;
   phone: string | null;
-  cep: string;
+  cep: string | null;
   email: string | null;
   address: string | null;
-  aparelho: string;
+  aparelho: string | null;
   brand: string | null;
   model: string | null;
   serialNumber: string | null;
-  defects: string;
+  defects: string | null;
   defectsHistory: string | null;
+  deviceImages: string[];
   price: number | null;
   status: OrderStatus;
   userId: string | null;
@@ -52,7 +53,7 @@ export default async function Home() {
   //    substituindo null por string vazia ou undefined onde necessário
   const items: FormItem[] = serviceOrders.map((order) => ({
     id: order.id,
-    name: order.name,
+    name: order.name ?? "",
     empresa: order.empresa ?? "",
     phone: order.phone ?? "",
     cep: order.cep ?? "",
@@ -62,8 +63,9 @@ export default async function Home() {
     brand: order.brand ?? "",
     model: order.model ?? "",
     serialNumber: order.serialNumber ?? "",
-    defects: order.defects,
+    defects: order.defects ?? "",
     defectsHistory: order.defectsHistory ?? "",
+    deviceImages: order.deviceImages?.length ? [...order.deviceImages] : [],
     price: order.price ?? undefined,
     status: order.status,
     createdAt: order.createdAt ?? undefined,

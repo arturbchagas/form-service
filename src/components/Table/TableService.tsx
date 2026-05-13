@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./TableService.module.css";
-import { Eye, Pencil, DollarSign, Trash2, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, Pencil, DollarSign, Trash2, FileText, FileSpreadsheet, ChevronLeft, ChevronRight } from "lucide-react";
+import DeviceImagePicker from "../form/DeviceImagePicker";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -44,6 +45,9 @@ export default function TableService({
   const [priceModalItem, setPriceModalItem] = useState<FormItem | null>(null);
   const [priceValue, setPriceValue] = useState("");
 
+  const [budgetModalItem, setBudgetModalItem] = useState<FormItem | null>(null);
+  const [budgetServiceDescription, setBudgetServiceDescription] = useState("");
+
   // OS selecionada para editar os dados completos (null = modal de edição fechado)
   const [editModalItem, setEditModalItem] = useState<FormItem | null>(null);
 
@@ -60,6 +64,7 @@ export default function TableService({
   const [editSerialNumber, setEditSerialNumber] = useState("");
   const [editDefects, setEditDefects] = useState("");
   const [editDefectsHistory, setEditDefectsHistory] = useState("");
+  const [editDeviceImages, setEditDeviceImages] = useState<string[]>([]);
 
   // Abre o mini modal de preço e preenche com o preço atual da OS (se existir)
   function openPriceModal(e: React.MouseEvent, item: FormItem) {
@@ -71,6 +76,26 @@ export default function TableService({
   function closePriceModal() {
     setPriceModalItem(null);
     setPriceValue("");
+  }
+
+  function openBudgetModal(e: React.MouseEvent, item: FormItem) {
+    e.stopPropagation();
+    setBudgetModalItem(item);
+    setBudgetServiceDescription("");
+  }
+
+  function closeBudgetModal() {
+    setBudgetModalItem(null);
+    setBudgetServiceDescription("");
+  }
+
+  async function handleConfirmBudgetPdf() {
+    if (!budgetModalItem) return;
+    const item = budgetModalItem;
+    const description = budgetServiceDescription;
+    closeBudgetModal();
+    const { generateBudgetPDF } = await import("../Budget/generateBudgetPDF");
+    await generateBudgetPDF(item, { serviceDescription: description });
   }
 
   // Valida e salva o preço quando o usuário confirma no modal
@@ -87,7 +112,7 @@ export default function TableService({
   function openEditModal(e: React.MouseEvent, item: FormItem) {
     e.stopPropagation();
     setEditModalItem(item);
-    setEditName(item.name);
+    setEditName(item.name ?? "");
     setEditEmpresa(item.empresa ?? "");
     setEditPhone(item.phone ?? "");
     setEditCep(item.cep ?? "");
@@ -97,8 +122,9 @@ export default function TableService({
     setEditBrand(item.brand ?? "");
     setEditModel(item.model ?? "");
     setEditSerialNumber(item.serialNumber ?? "");
-    setEditDefects(item.defects);
+    setEditDefects(item.defects ?? "");
     setEditDefectsHistory(item.defectsHistory ?? "");
+    setEditDeviceImages(item.deviceImages?.length ? [...item.deviceImages] : []);
   }
 
   function closeEditModal() {
@@ -122,6 +148,7 @@ export default function TableService({
       serialNumber: editSerialNumber,
       defects: editDefects,
       defectsHistory: editDefectsHistory,
+      deviceImages: editDeviceImages,
       status: editModalItem.status, // Mantém o status atual ao editar dados
     });
     closeEditModal();
@@ -156,10 +183,10 @@ export default function TableService({
         <tbody>
           {paginatedItems.map((item) => (
             <tr className={styles.tr} key={item.id}>
-              <td className={styles.td}>{item.name}</td>
+              <td className={styles.td}>{item.name?.trim() ? item.name : "—"}</td>
               <td className={styles.td}>{item.empresa || "—"}</td>
               
-              <td className={styles.td}>{item.aparelho}</td>
+              <td className={styles.td}>{item.aparelho?.trim() ? item.aparelho : "—"}</td>
               <td className={styles.td}>
                 {/* Formata o preço em Real Brasileiro (R$) se existir */}
                 {item.price != null
@@ -229,6 +256,15 @@ export default function TableService({
                     }}
                   >
                     <FileText size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`${styles.actionBtn} ${styles.actionBudget}`}
+                    title="Gerar orçamento PDF"
+                    onClick={(e) => openBudgetModal(e, item)}
+                  >
+                    <FileSpreadsheet size={16} />
                   </button>
 
                   {/* Botão excluir: deleta a OS após confirmação */}
@@ -302,7 +338,7 @@ export default function TableService({
               <h3>Adicionar Preço</h3>
               <button className={styles.closeBtn} onClick={closePriceModal}>&times;</button>
             </div>
-            <p className={styles.miniModalSub}>O.S.: {priceModalItem.name} — {priceModalItem.aparelho}</p>
+            <p className={styles.miniModalSub}>O.S.: {priceModalItem.name?.trim() || "—"} — {priceModalItem.aparelho?.trim() || "—"}</p>
             <input
               type="number"
               min="0"
@@ -321,6 +357,43 @@ export default function TableService({
         </div>
       )}
 
+      {/* Modal opcional: descrição do serviço antes de gerar o orçamento em PDF */}
+      {budgetModalItem && (
+        <div className={styles.overlay} onClick={closeBudgetModal}>
+          <div className={styles.budgetMiniModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.miniModalHeader}>
+              <h3>Gerar orçamento</h3>
+              <button type="button" className={styles.closeBtn} onClick={closeBudgetModal} aria-label="Fechar">
+                &times;
+              </button>
+            </div>
+            <p className={styles.miniModalSub}>
+              O.S.: {budgetModalItem.name?.trim() || "—"} — {budgetModalItem.aparelho?.trim() || "—"}
+            </p>
+            <label className={styles.budgetLabel} htmlFor="budget-service-desc">
+              Descrição do serviço <span className={styles.budgetOptional}>(opcional)</span>
+            </label>
+            <textarea
+              id="budget-service-desc"
+              className={styles.budgetTextarea}
+              value={budgetServiceDescription}
+              onChange={(e) => setBudgetServiceDescription(e.target.value)}
+              placeholder="Ex.: conserto do circuito de potência e manutenção"
+              rows={4}
+              autoFocus
+            />
+            <div className={styles.miniModalActions}>
+              <button type="button" className={styles.cancelBtn} onClick={closeBudgetModal}>
+                Cancelar
+              </button>
+              <button type="button" className={styles.saveBtn} onClick={() => void handleConfirmBudgetPdf()}>
+                Gerar PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de edição completa — exibido quando editModalItem != null */}
       {editModalItem && (
         <div className={styles.overlay} onClick={closeEditModal}>
@@ -330,10 +403,20 @@ export default function TableService({
               <button className={styles.closeBtn} onClick={closeEditModal}>&times;</button>
             </div>
             <form onSubmit={handleSaveEdit} className={styles.editForm}>
+              <div className={styles.editImagesSection}>
+                <span className={styles.editImagesLabel}>
+                  Fotos do aparelho <span className={styles.editOptional}>(opcional)</span>
+                </span>
+                <DeviceImagePicker
+                  variant="light"
+                  images={editDeviceImages}
+                  onChange={setEditDeviceImages}
+                />
+              </div>
               <div className={styles.editGrid}>
                 <div className={styles.editField}>
-                  <label>Nome *</label>
-                  <input required value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nome completo" />
+                  <label>Nome</label>
+                  <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nome completo" />
                 </div>
                 <div className={styles.editField}>
                   <label>Empresa</label>
@@ -344,8 +427,8 @@ export default function TableService({
                   <input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="(00) 00000-0000" />
                 </div>
                 <div className={styles.editField}>
-                  <label>CEP *</label>
-                  <input required value={editCep} onChange={(e) => setEditCep(e.target.value)} placeholder="00000-000" />
+                  <label>CEP</label>
+                  <input value={editCep} onChange={(e) => setEditCep(e.target.value)} placeholder="00000-000" />
                 </div>
                 <div className={styles.editField}>
                   <label>E-mail</label>
@@ -356,8 +439,8 @@ export default function TableService({
                   <input value={editAddress} onChange={(e) => setEditAddress(e.target.value)} placeholder="Rua, número, bairro, cidade" />
                 </div>
                 <div className={styles.editField}>
-                  <label>Aparelho *</label>
-                  <input required value={editAparelho} onChange={(e) => setEditAparelho(e.target.value)} placeholder="Ex: Ar condicionado" />
+                  <label>Aparelho</label>
+                  <input value={editAparelho} onChange={(e) => setEditAparelho(e.target.value)} placeholder="Ex: Ar condicionado" />
                 </div>
                 <div className={styles.editField}>
                   <label>Marca</label>
@@ -372,8 +455,8 @@ export default function TableService({
                   <input value={editSerialNumber} onChange={(e) => setEditSerialNumber(e.target.value)} placeholder="Nº de série" />
                 </div>
                 <div className={`${styles.editField} ${styles.editFieldFull}`}>
-                  <label>Defeitos *</label>
-                  <textarea required rows={3} value={editDefects} onChange={(e) => setEditDefects(e.target.value)} placeholder="Descreva o(s) defeito(s)" />
+                  <label>Defeitos</label>
+                  <textarea rows={3} value={editDefects} onChange={(e) => setEditDefects(e.target.value)} placeholder="Descreva o(s) defeito(s)" />
                 </div>
                 <div className={`${styles.editField} ${styles.editFieldFull}`}>
                   <label>Histórico de defeitos</label>

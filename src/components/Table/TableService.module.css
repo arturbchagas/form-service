@@ -13,10 +13,10 @@
   overflow-y: auto;
   max-height: 380px;
   border-radius: 14px 14px 0 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #1f2937;
   border-bottom: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  background: #fff;
+  background: #0b1220;
 }
 
 /* Scrollbar personalizada */
@@ -25,8 +25,8 @@
   height: 6px;
 }
 .tableWrapper::-webkit-scrollbar-track { background: #f1f5f9; }
-.tableWrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
-.tableWrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.tableWrapper::-webkit-scrollbar-thumb { background: #374151; border-radius: 99px; }
+.tableWrapper::-webkit-scrollbar-thumb:hover { background: #4b5563; }
 
 .table {
   border-collapse: collapse;
@@ -59,8 +59,8 @@ thead .tr th:last-child {
 .td {
   padding: 12px 16px;
   font-size: 0.875rem;
-  color: #334155;
-  border-bottom: 1px solid #f1f5f9;
+  color: #cbd5e1;
+  border-bottom: 1px solid #1f2937;
   white-space: nowrap;
   background: transparent;
   transition: background 0.12s;
@@ -71,11 +71,11 @@ thead .tr th:last-child {
 }
 
 .tr:nth-child(even) .td {
-  background: #f8fafc;
+  background: #0f172a;
 }
 
 .tr:hover .td {
-  background: #eff6ff !important;
+  background: #111827 !important;
 }
 
 /* ── Status badge ────────────────────────────────────────────── */
@@ -140,6 +140,9 @@ thead .tr th:last-child {
 
 .actionReceipt           { background: #d97706; }
 .actionReceipt:hover     { background: #b45309; }
+
+.actionBudget            { background: #7c3aed; }
+.actionBudget:hover      { background: #6d28d9; }
 
 /* ── Empty state ─────────────────────────────────────────────── */
 .emptyState {
@@ -249,6 +252,57 @@ thead .tr th:last-child {
   gap: 8px;
 }
 
+/* ── Mini modal orçamento (descrição opcional) ─────────────── */
+.budgetMiniModal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: min(440px, 94vw);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: slideUp 0.2s ease;
+}
+
+.budgetLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.budgetOptional {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: #94a3b8;
+}
+
+.budgetTextarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  background: #f8fafc;
+  color: #0f172a;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.budgetTextarea:focus {
+  border-color: #7c3aed;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
 .cancelBtn {
   padding: 8px 18px;
   background: #f1f5f9;
@@ -296,6 +350,29 @@ thead .tr th:last-child {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.editImagesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.editImagesLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.editOptional {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: #94a3b8;
 }
 
 .editGrid {
@@ -349,16 +426,16 @@ thead .tr th:last-child {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-top: 1px solid #f1f5f9;
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  border-top: 1px solid #1f2937;
   border-radius: 0 0 14px 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .pageInfo {
   font-size: 0.78rem;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 500;
 }
 
@@ -377,18 +454,18 @@ thead .tr th:last-child {
   padding: 0 6px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #475569;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  color: #cbd5e1;
+  background: #111827;
+  border: 1px solid #374151;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .pageBtn:hover:not(:disabled) {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background: #1f2937;
+  border-color: #60a5fa;
+  color: #93c5fd;
 }
 
 .pageBtn:disabled {

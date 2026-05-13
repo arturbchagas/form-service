@@ -10,14 +10,14 @@
   padding: 0 16px;
   font-size: 1rem;
   color: var(--foreground);
-  background: var(--background);
-  border: 1px solid var(--search-border, #e2e8f0);
+  background: #111827;
+  border: 1px solid var(--search-border, #374151);
   border-radius: 8px;
   box-sizing: border-box;
 }
 
 .input::placeholder {
-  color: #94a3b8;
+  color: #9ca3af;
 }
 
 .input:focus {
@@ -27,6 +27,6 @@
 
 @media (prefers-color-scheme: dark) {
   .input {
-    --search-border: rgba(255, 255, 255, 0.2);
+    --search-border: #374151;
   }
 }
