@@ -14,9 +14,9 @@ datasource db {
 
 enum OrderStatus {
   novo
+  aguardando_autorizacao
   aprovado
   reprovado
-  pago
   pronto
   entregue
   cancelado

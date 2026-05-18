@@ -110,11 +110,19 @@
 /* ── Status section ──────────────────────────────────────────── */
 .status_section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  padding: 14px 24px;
+  padding: 16px 24px;
   background: #0f172a;
   border-bottom: 1px solid #1f2937;
+}
+
+.status_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .status_label {
@@ -124,25 +132,6 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
-}
-
-.status_select {
-  padding: 7px 32px 7px 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #e5e7eb;
-  background: #111827 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
-  border: 1.5px solid #374151;
-  border-radius: 8px;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.status_select:focus {
-  border-color: #1367bc;
-  box-shadow: 0 0 0 3px rgba(19, 103, 188, 0.14);
 }
 
 /* ── Body (info grid) ────────────────────────────────────────── */

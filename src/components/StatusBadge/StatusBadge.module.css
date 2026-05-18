@@ -1,0 +1,130 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 9px;
+  border-radius: 999px;
+  border: 1.5px solid var(--status-border);
+  background: var(--status-bg);
+  color: var(--status-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.sm {
+  padding: 4px 10px 4px 8px;
+  font-size: 0.68rem;
+  gap: 6px;
+}
+
+.sm .dot {
+  width: 7px;
+  height: 7px;
+}
+
+.md {
+  padding: 6px 14px 6px 10px;
+  font-size: 0.8rem;
+}
+
+.lg {
+  padding: 8px 16px 8px 12px;
+  font-size: 0.875rem;
+  gap: 10px;
+}
+
+.lg .dot {
+  width: 10px;
+  height: 10px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-dot);
+  flex-shrink: 0;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--status-dot) 40%, transparent),
+    0 0 8px color-mix(in srgb, var(--status-dot) 50%, transparent);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Cores por status ─────────────────────────────────────────── */
+.badge[data-status="novo"] {
+  --status-dot: #3b82f6;
+  --status-bg: rgba(59, 130, 246, 0.2);
+  --status-border: rgba(59, 130, 246, 0.65);
+  --status-text: #93c5fd;
+}
+
+.badge[data-status="aguardando_autorizacao"] {
+  --status-dot: #f59e0b;
+  --status-bg: rgba(245, 158, 11, 0.22);
+  --status-border: rgba(245, 158, 11, 0.7);
+  --status-text: #fcd34d;
+}
+
+.badge[data-status="aprovado"] {
+  --status-dot: #22c55e;
+  --status-bg: rgba(34, 197, 94, 0.28);
+  --status-border: rgba(34, 197, 94, 0.85);
+  --status-text: #86efac;
+}
+
+.badge[data-status="reprovado"] {
+  --status-dot: #ef4444;
+  --status-bg: rgba(239, 68, 68, 0.22);
+  --status-border: rgba(239, 68, 68, 0.75);
+  --status-text: #fca5a5;
+}
+
+.badge[data-status="pronto"] {
+  --status-dot: #14b8a6;
+  --status-bg: rgba(20, 184, 166, 0.22);
+  --status-border: rgba(20, 184, 166, 0.75);
+  --status-text: #5eead4;
+}
+
+.badge[data-status="entregue"] {
+  --status-dot: #8b5cf6;
+  --status-bg: rgba(139, 92, 246, 0.22);
+  --status-border: rgba(139, 92, 246, 0.7);
+  --status-text: #c4b5fd;
+}
+
+.badge[data-status="cancelado"] {
+  --status-dot: #9ca3af;
+  --status-bg: rgba(107, 114, 128, 0.2);
+  --status-border: rgba(156, 163, 175, 0.5);
+  --status-text: #d1d5db;
+}
+
+/* Pulso nos status que exigem atenção */
+.badge[data-pulse="true"] .dot {
+  animation: statusPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--status-dot) 40%, transparent),
+      0 0 6px color-mix(in srgb, var(--status-dot) 45%, transparent);
+  }
+  50% {
+    transform: scale(1.12);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--status-dot) 28%, transparent),
+      0 0 12px color-mix(in srgb, var(--status-dot) 65%, transparent);
+  }
+}

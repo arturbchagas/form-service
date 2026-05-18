@@ -217,7 +217,7 @@ export async function updateServiceOrder(
 }
 
 // --- UPDATE STATUS ---
-// Atualiza apenas o campo "status" de uma OS (ex: novo → aprovado → pago).
+// Atualiza apenas o campo "status" de uma OS (ex: novo → aguardando autorização → aprovado).
 export async function updateStatus(id: string, status: OrderStatus) {
     const userId = await getCurrentUserId();
 

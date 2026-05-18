@@ -1,0 +1,163 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  background-color: #111827;
+  border: 1.5px solid var(--status-border, #374151);
+  border-left-width: 4px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  text-align: left;
+}
+
+.trigger:hover {
+  background-color: #1f2937;
+}
+
+.trigger:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-border, #1367bc) 35%, transparent);
+}
+
+.trigger[data-status="novo"] {
+  --status-border: #3b82f6;
+  --status-dot: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.trigger[data-status="aguardando_autorizacao"] {
+  --status-border: #f59e0b;
+  --status-dot: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.trigger[data-status="aprovado"] {
+  --status-border: #22c55e;
+  --status-dot: #22c55e;
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.trigger[data-status="reprovado"] {
+  --status-border: #ef4444;
+  --status-dot: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.trigger[data-status="pronto"] {
+  --status-border: #14b8a6;
+  --status-dot: #14b8a6;
+  background-color: rgba(20, 184, 166, 0.1);
+}
+
+.trigger[data-status="entregue"] {
+  --status-border: #8b5cf6;
+  --status-dot: #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.trigger[data-status="cancelado"] {
+  --status-border: #9ca3af;
+  --status-dot: #9ca3af;
+  background-color: rgba(107, 114, 128, 0.12);
+}
+
+.triggerLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: #94a3b8;
+  transition: transform 0.2s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-dot, #94a3b8);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--status-dot, #94a3b8) 40%, transparent);
+}
+
+.list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #0b1220;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  max-height: min(320px, 50vh);
+  overflow-y: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: #1f2937;
+  outline: none;
+}
+
+.option[data-selected="true"] {
+  background: rgba(19, 103, 188, 0.22);
+  color: #93c5fd;
+}
+
+.option[data-status="novo"] { --status-dot: #3b82f6; }
+.option[data-status="aguardando_autorizacao"] { --status-dot: #f59e0b; }
+.option[data-status="aprovado"] { --status-dot: #22c55e; }
+.option[data-status="reprovado"] { --status-dot: #ef4444; }
+.option[data-status="pronto"] { --status-dot: #14b8a6; }
+.option[data-status="entregue"] { --status-dot: #8b5cf6; }
+.option[data-status="cancelado"] { --status-dot: #9ca3af; }
+
+.list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 99px;
+}
