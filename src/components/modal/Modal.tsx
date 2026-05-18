@@ -1,5 +1,7 @@
 "use client";
 import { FormItem } from "../../types/Form-itens/FormItem";
+import StatusBadge from "../StatusBadge/StatusBadge";
+import StatusSelect from "../StatusSelect/StatusSelect";
 import styles from "./Modal.module.css";
 
 interface UserModalProps {
@@ -50,20 +52,14 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
 
         {/* Status */}
         <div className={styles.status_section}>
-          <span className={styles.status_label}>Status da O.S.</span>
-          <select
-            className={styles.status_select}
+          <div className={styles.status_header}>
+            <span className={styles.status_label}>Status da O.S.</span>
+            <StatusBadge status={items.status} size="lg" />
+          </div>
+          <StatusSelect
             value={items.status}
-            onChange={(e) => onChangeStatus(e.target.value as FormItem["status"])}
-          >
-            <option value="novo">Novo</option>
-            <option value="aprovado">Aprovado</option>
-            <option value="reprovado">Reprovado</option>
-            <option value="pago">Pago</option>
-            <option value="pronto">Pronto</option>
-            <option value="entregue">Entregue</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
+            onChange={onChangeStatus}
+          />
         </div>
 
         {/* Info grid */}

@@ -7,6 +7,7 @@ import { Eye, Pencil, DollarSign, Trash2, FileText, FileSpreadsheet, ChevronLeft
 import DeviceImagePicker from "../form/DeviceImagePicker";
 import ReceiptFormModal from "../Receipt/ReceiptFormModal";
 import type { ReceiptClientPayload } from "../Receipt/receiptTypes";
+import StatusBadge from "../StatusBadge/StatusBadge";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -215,9 +216,7 @@ export default function TableService({
                   : "—"}
               </td>
               <td className={styles.td}>
-                <span className={styles.statusBadge} data-status={item.status}>
-                  {item.status}
-                </span>
+                <StatusBadge status={item.status} size="sm" />
               </td>
               <td className={styles.td}>
                 {/* Formata a data no padrão dd/mm/aaaa */}
