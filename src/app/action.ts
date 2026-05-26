@@ -7,7 +7,13 @@ import { FormItem } from "@/types/Form-itens/FormItem";
 import { z } from "zod";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { MAX_DEVICE_IMAGES } from "@/lib/readImageDataUrls";
+import {
+    MAX_DEVICE_IMAGES,
+    MAX_DATA_URL_LENGTH,
+    MAX_DEVICE_IMAGES_TOTAL_BYTES,
+    getDeviceImagesTotalBytes,
+    formatImageBytes,
+} from "@/lib/readImageDataUrls";
 
 // Converte string vazia ou só espaços em null para persistência no PostgreSQL.
 function emptyToNull(value: string | undefined | null): string | null {
@@ -38,10 +44,16 @@ const optionalEmail = z.string().refine(
 );
 
 const deviceImagesSchema = z
-    .array(z.string().max(6_000_000))
+    .array(z.string().max(MAX_DATA_URL_LENGTH))
     .max(MAX_DEVICE_IMAGES)
     .optional()
-    .default([]);
+    .default([])
+    .refine(
+        (images) => getDeviceImagesTotalBytes(images) <= MAX_DEVICE_IMAGES_TOTAL_BYTES,
+        {
+            message: `O total das imagens não pode ultrapassar ${formatImageBytes(MAX_DEVICE_IMAGES_TOTAL_BYTES)}.`,
+        }
+    );
 
 const looseOptionalString = z.coerce.string();
 

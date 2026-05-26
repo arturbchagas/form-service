@@ -180,8 +180,25 @@
 
 .submitWrapper {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
   padding-top: 8px;
+}
+
+.submitError {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #fecaca;
+  text-align: left;
+  background: rgba(185, 28, 28, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  border-radius: 8px;
 }
 
 .submitBtn {
@@ -196,12 +213,17 @@
   transition: background 0.2s;
 }
 
-.submitBtn:hover {
+.submitBtn:hover:not(:disabled) {
   background: #1d4ed8;
 }
 
-.submitBtn:active {
+.submitBtn:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {

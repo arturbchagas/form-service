@@ -1,10 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import {
   MAX_DEVICE_IMAGES,
+  MAX_DEVICE_IMAGES_TOTAL_BYTES,
+  MAX_IMAGE_FILE_BYTES,
+  formatImageBytes,
   readImageFilesAsDataUrls,
+  validateDeviceImages,
 } from "@/lib/readImageDataUrls";
 import styles from "./DeviceImagePicker.module.css";
 
@@ -15,6 +19,8 @@ interface DeviceImagePickerProps {
   addLabel?: string;
   /** Fundo claro (ex.: modal de edição na tabela) */
   variant?: "default" | "light";
+  /** Erro de tamanho total (controle externo opcional). */
+  sizeError?: string | null;
 }
 
 export default function DeviceImagePicker({
@@ -22,15 +28,33 @@ export default function DeviceImagePicker({
   onChange,
   addLabel = "Adicionar fotos do aparelho",
   variant = "default",
+  sizeError: sizeErrorProp,
 }: DeviceImagePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pickNotice, setPickNotice] = useState<string | null>(null);
+
+  const validation = useMemo(() => validateDeviceImages(images), [images]);
+  const sizeError = sizeErrorProp ?? validation.message;
+
+  const maxPerFileLabel = formatImageBytes(MAX_IMAGE_FILE_BYTES);
+  const maxTotalLabel = formatImageBytes(MAX_DEVICE_IMAGES_TOTAL_BYTES);
 
   async function onFilesPicked(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
-    const { dataUrls, skipped } = await readImageFilesAsDataUrls(files, images.length);
-    if (skipped.length) {
-      window.alert(skipped.join("\n"));
+    const { dataUrls, skipped, blocked } = await readImageFilesAsDataUrls(
+      files,
+      images.length,
+      images
+    );
+
+    if (blocked) {
+      setPickNotice(blocked);
+    } else if (skipped.length) {
+      setPickNotice(skipped.join(" "));
+    } else {
+      setPickNotice(null);
     }
+
     if (dataUrls.length) {
       onChange([...images, ...dataUrls]);
     }
@@ -38,10 +62,14 @@ export default function DeviceImagePicker({
   }
 
   function removeAt(index: number) {
+    setPickNotice(null);
     onChange(images.filter((_, i) => i !== index));
   }
 
   const atLimit = images.length >= MAX_DEVICE_IMAGES;
+  const totalLabel = formatImageBytes(validation.totalBytes);
+  const nearLimit =
+    validation.totalBytes > MAX_DEVICE_IMAGES_TOTAL_BYTES * 0.85;
 
   return (
     <div className={`${styles.wrap} ${variant === "light" ? styles.wrapLight : ""}`}>
@@ -60,17 +88,38 @@ export default function DeviceImagePicker({
           className={styles.addBtn}
           onClick={() => inputRef.current?.click()}
           disabled={atLimit}
-          title={atLimit ? `Máximo de ${MAX_DEVICE_IMAGES} imagens` : addLabel}
+          title={
+            sizeError
+              ? sizeError
+              : atLimit
+                ? `Máximo de ${MAX_DEVICE_IMAGES} imagens`
+                : addLabel
+          }
           aria-label={addLabel}
         >
           <ImagePlus size={22} strokeWidth={1.75} />
         </button>
-        <span className={styles.hint}>
+        <span
+          className={`${styles.hint} ${nearLimit && !sizeError ? styles.hintWarn : ""}`}
+        >
           {atLimit
-            ? `Limite: ${MAX_DEVICE_IMAGES} imagens`
-            : `${images.length}/${MAX_DEVICE_IMAGES} — JPG, PNG, WebP até 4 MB`}
+            ? `Limite: ${MAX_DEVICE_IMAGES} imagens · ${totalLabel} / ${maxTotalLabel}`
+            : `${images.length}/${MAX_DEVICE_IMAGES} — até ${maxPerFileLabel} por foto, ${maxTotalLabel} no total (${totalLabel} usados)`}
         </span>
       </div>
+
+      {pickNotice && !sizeError && (
+        <p className={styles.notice} role="status">
+          {pickNotice}
+        </p>
+      )}
+
+      {sizeError && (
+        <p className={styles.error} role="alert">
+          {sizeError}
+        </p>
+      )}
+
       {images.length > 0 && (
         <ul className={styles.thumbList}>
           {images.map((src, i) => (
