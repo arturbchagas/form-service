@@ -8,6 +8,7 @@ import DeviceImagePicker from "../form/DeviceImagePicker";
 import ReceiptFormModal from "../Receipt/ReceiptFormModal";
 import type { ReceiptClientPayload } from "../Receipt/receiptTypes";
 import StatusBadge from "../StatusBadge/StatusBadge";
+import { validateDeviceImages } from "@/lib/readImageDataUrls";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -154,9 +155,13 @@ export default function TableService({
   }
 
   // Coleta os dados do formulário de edição e chama o callback do pai
+  const editImagesValidation = validateDeviceImages(editDeviceImages);
+  const editImagesOverLimit = !editImagesValidation.ok;
+
   function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!editModalItem) return;
+    if (!validateDeviceImages(editDeviceImages).ok) return;
     onEdit(editModalItem.id, {
       name: editName,
       empresa: editEmpresa,
@@ -491,9 +496,21 @@ export default function TableService({
                   <textarea rows={3} value={editDefectsHistory} onChange={(e) => setEditDefectsHistory(e.target.value)} placeholder="Histórico de reparos anteriores" />
                 </div>
               </div>
+              {editImagesOverLimit && (
+                <p className={styles.imagesSubmitError} role="alert">
+                  {editImagesValidation.message}
+                </p>
+              )}
               <div className={styles.miniModalActions}>
                 <button type="button" className={styles.cancelBtn} onClick={closeEditModal}>Cancelar</button>
-                <button type="submit" className={styles.saveBtn}>Atualizar</button>
+                <button
+                  type="submit"
+                  className={styles.saveBtn}
+                  disabled={editImagesOverLimit}
+                  title={editImagesOverLimit ? editImagesValidation.message ?? undefined : undefined}
+                >
+                  Atualizar
+                </button>
               </div>
             </form>
           </div>

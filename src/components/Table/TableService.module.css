@@ -267,10 +267,27 @@ thead .tr th:last-child {
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
 }
 
+.imagesSubmitError {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
 .miniModalActions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.saveBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ── Mini modal orçamento (descrição opcional) ─────────────── */

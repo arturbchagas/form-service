@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./FormService.module.css";
 import DeviceImagePicker from "./DeviceImagePicker";
+import { validateDeviceImages } from "@/lib/readImageDataUrls";
 
 // Tipo para criação: exclui campos gerados automaticamente pelo banco
 type CreateServiceOrderInput = Omit<FormItem, "id" | "createdAt" | "updatedAt">;
@@ -76,8 +77,13 @@ export default function FormService({
     }
   }, [itemToEdit]); // Roda sempre que itemToEdit mudar
 
+  const imagesValidation = validateDeviceImages(deviceImages);
+  const imagesOverLimit = !imagesValidation.ok;
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Evita recarregar a página
+
+    if (!validateDeviceImages(deviceImages).ok) return;
 
     // Monta o objeto com os dados do formulário
     const formData: CreateServiceOrderInput = {
@@ -297,8 +303,18 @@ export default function FormService({
             </section>
 
             <div className={styles.submitWrapper}>
+              {imagesOverLimit && (
+                <p className={styles.submitError} role="alert">
+                  {imagesValidation.message}
+                </p>
+              )}
               {/* Botão muda o texto conforme o modo */}
-              <button type="submit" className={styles.submitBtn}>
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={imagesOverLimit}
+                title={imagesOverLimit ? imagesValidation.message ?? undefined : undefined}
+              >
                 {itemToEdit ? "Atualizar" : "Enviar"}
               </button>
             </div>
