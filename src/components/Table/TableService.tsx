@@ -1,16 +1,16 @@
 "use client"; // Precisa rodar no browser para gerenciar os modais e interações
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import styles from "./TableService.module.css";
 import { Eye, Pencil, DollarSign, Trash2, FileText, FileSpreadsheet, ChevronLeft, ChevronRight } from "lucide-react";
-import DeviceImagePicker from "../form/DeviceImagePicker";
+import FormMediaUpload, { validateFormMedia } from "../form/FormMediaUpload";
 import ReceiptFormModal from "../Receipt/ReceiptFormModal";
 import type { ReceiptClientPayload } from "../Receipt/receiptTypes";
 import StatusBadge from "../StatusBadge/StatusBadge";
-import { validateDeviceImages } from "@/lib/readImageDataUrls";
+import { resolveMediaForSubmit } from "@/lib/formMedia";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 function getPageNumbers(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -70,7 +70,11 @@ export default function TableService({
   const [editSerialNumber, setEditSerialNumber] = useState("");
   const [editDefects, setEditDefects] = useState("");
   const [editDefectsHistory, setEditDefectsHistory] = useState("");
-  const [editDeviceImages, setEditDeviceImages] = useState<string[]>([]);
+  const [editImageFiles, setEditImageFiles] = useState<File[]>([]);
+  const [editAudioFiles, setEditAudioFiles] = useState<File[]>([]);
+  const [editExistingImages, setEditExistingImages] = useState<string[]>([]);
+  const [editExistingAudios, setEditExistingAudios] = useState<string[]>([]);
+  const [editSaving, setEditSaving] = useState(false);
 
   // Abre o mini modal de preço e preenche com o preço atual da OS (se existir)
   function openPriceModal(e: React.MouseEvent, item: FormItem) {
@@ -147,38 +151,67 @@ export default function TableService({
     setEditSerialNumber(item.serialNumber ?? "");
     setEditDefects(item.defects ?? "");
     setEditDefectsHistory(item.defectsHistory ?? "");
-    setEditDeviceImages(item.deviceImages?.length ? [...item.deviceImages] : []);
+    setEditExistingImages(item.deviceImages?.length ? [...item.deviceImages] : []);
+    setEditExistingAudios(item.deviceAudios?.length ? [...item.deviceAudios] : []);
+    setEditImageFiles([]);
+    setEditAudioFiles([]);
   }
 
   function closeEditModal() {
     setEditModalItem(null);
+    setEditImageFiles([]);
+    setEditAudioFiles([]);
+    setEditExistingImages([]);
+    setEditExistingAudios([]);
   }
 
-  // Coleta os dados do formulário de edição e chama o callback do pai
-  const editImagesValidation = validateDeviceImages(editDeviceImages);
-  const editImagesOverLimit = !editImagesValidation.ok;
+  const editMediaState = useMemo(
+    () => ({
+      imageFiles: editImageFiles,
+      audioFiles: editAudioFiles,
+      existingImages: editExistingImages,
+      existingAudios: editExistingAudios,
+    }),
+    [editImageFiles, editAudioFiles, editExistingImages, editExistingAudios]
+  );
 
-  function handleSaveEdit(e: React.FormEvent) {
+  const editMediaValidation = useMemo(
+    () => validateFormMedia(editMediaState),
+    [editMediaState]
+  );
+  const editMediaInvalid = !editMediaValidation.ok;
+
+  async function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!editModalItem) return;
-    if (!validateDeviceImages(editDeviceImages).ok) return;
-    onEdit(editModalItem.id, {
-      name: editName,
-      empresa: editEmpresa,
-      phone: editPhone,
-      cep: editCep,
-      email: editEmail,
-      address: editAddress,
-      aparelho: editAparelho,
-      brand: editBrand,
-      model: editModel,
-      serialNumber: editSerialNumber,
-      defects: editDefects,
-      defectsHistory: editDefectsHistory,
-      deviceImages: editDeviceImages,
-      status: editModalItem.status, // Mantém o status atual ao editar dados
-    });
-    closeEditModal();
+    if (!validateFormMedia(editMediaState).ok) return;
+
+    setEditSaving(true);
+    try {
+      const { deviceImages, deviceAudios } =
+        await resolveMediaForSubmit(editMediaState);
+
+      onEdit(editModalItem.id, {
+        name: editName,
+        empresa: editEmpresa,
+        phone: editPhone,
+        cep: editCep,
+        email: editEmail,
+        address: editAddress,
+        aparelho: editAparelho,
+        brand: editBrand,
+        model: editModel,
+        serialNumber: editSerialNumber,
+        defects: editDefects,
+        defectsHistory: editDefectsHistory,
+        deviceImages,
+        deviceAudios,
+        status: editModalItem.status,
+      });
+      closeEditModal();
+    } finally {
+      setEditSaving(false);
+    }
   }
 
   // Exibe mensagem quando não há ordens de serviço (lista vazia ou busca sem resultado)
@@ -438,12 +471,18 @@ export default function TableService({
             <form onSubmit={handleSaveEdit} className={styles.editForm}>
               <div className={styles.editImagesSection}>
                 <span className={styles.editImagesLabel}>
-                  Fotos do aparelho <span className={styles.editOptional}>(opcional)</span>
+                  Anexos <span className={styles.editOptional}>(opcional)</span>
                 </span>
-                <DeviceImagePicker
+                <FormMediaUpload
                   variant="light"
-                  images={editDeviceImages}
-                  onChange={setEditDeviceImages}
+                  imageFiles={editImageFiles}
+                  onImageFilesChange={setEditImageFiles}
+                  existingImages={editExistingImages}
+                  onExistingImagesChange={setEditExistingImages}
+                  audioFiles={editAudioFiles}
+                  onAudioFilesChange={setEditAudioFiles}
+                  existingAudios={editExistingAudios}
+                  onExistingAudiosChange={setEditExistingAudios}
                 />
               </div>
               <div className={styles.editGrid}>
@@ -488,28 +527,35 @@ export default function TableService({
                   <input value={editSerialNumber} onChange={(e) => setEditSerialNumber(e.target.value)} placeholder="Nº de série" />
                 </div>
                 <div className={`${styles.editField} ${styles.editFieldFull}`}>
-                  <label>Defeitos</label>
+                  <label>Defeitos reclamados</label>
                   <textarea rows={3} value={editDefects} onChange={(e) => setEditDefects(e.target.value)} placeholder="Descreva o(s) defeito(s)" />
                 </div>
                 <div className={`${styles.editField} ${styles.editFieldFull}`}>
-                  <label>Histórico de defeitos</label>
-                  <textarea rows={3} value={editDefectsHistory} onChange={(e) => setEditDefectsHistory(e.target.value)} placeholder="Histórico de reparos anteriores" />
+                  <label>Defeitos encontrados e observações</label>
+                  <textarea rows={3} value={editDefectsHistory} onChange={(e) => setEditDefectsHistory(e.target.value)} placeholder="Defeitos encontrados durante a análise e observações" />
                 </div>
               </div>
-              {editImagesOverLimit && (
-                <p className={styles.imagesSubmitError} role="alert">
-                  {editImagesValidation.message}
-                </p>
+              {(editMediaValidation.imageMessage || editMediaValidation.audioMessage) && (
+                <div className={styles.imagesSubmitError} role="alert">
+                  {editMediaValidation.imageMessage && <p>{editMediaValidation.imageMessage}</p>}
+                  {editMediaValidation.audioMessage && <p>{editMediaValidation.audioMessage}</p>}
+                </div>
               )}
               <div className={styles.miniModalActions}>
                 <button type="button" className={styles.cancelBtn} onClick={closeEditModal}>Cancelar</button>
                 <button
                   type="submit"
                   className={styles.saveBtn}
-                  disabled={editImagesOverLimit}
-                  title={editImagesOverLimit ? editImagesValidation.message ?? undefined : undefined}
+                  disabled={editMediaInvalid || editSaving}
+                  title={
+                    editMediaInvalid
+                      ? [editMediaValidation.imageMessage, editMediaValidation.audioMessage]
+                          .filter(Boolean)
+                          .join(" ")
+                      : undefined
+                  }
                 >
-                  Atualizar
+                  {editSaving ? "Salvando…" : "Atualizar"}
                 </button>
               </div>
             </form>

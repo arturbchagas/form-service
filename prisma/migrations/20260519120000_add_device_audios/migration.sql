@@ -1,0 +1,1 @@
+ALTER TABLE "ServiceOrder" ADD COLUMN "deviceAudios" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

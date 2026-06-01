@@ -279,6 +279,14 @@ thead .tr th:last-child {
   border-radius: 8px;
 }
 
+.imagesSubmitError p {
+  margin: 0;
+}
+
+.imagesSubmitError p + p {
+  margin-top: 6px;
+}
+
 .miniModalActions {
   display: flex;
   justify-content: flex-end;

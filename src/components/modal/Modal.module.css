@@ -107,6 +107,64 @@
   background: #020617;
 }
 
+/* ── Áudios do aparelho ──────────────────────────────────────── */
+.deviceAudiosBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.deviceAudiosLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.deviceAudioList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deviceAudioItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  background: #0b1220;
+}
+
+.deviceAudioHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deviceAudioIcon {
+  color: #60a5fa;
+  flex-shrink: 0;
+}
+
+.deviceAudioName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.deviceAudioPlayer {
+  width: 100%;
+  height: 40px;
+}
+
 /* ── Status section ──────────────────────────────────────────── */
 .status_section {
   display: flex;

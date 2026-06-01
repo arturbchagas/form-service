@@ -1,0 +1,276 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.blockTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 20px 16px;
+  border: 2px dashed #374151;
+  border-radius: 12px;
+  background: #0b1220;
+  color: #94a3b8;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+  text-align: center;
+}
+
+.dropzone:hover:not(.dropzoneDisabled) {
+  border-color: #60a5fa;
+  background: #111827;
+  color: #cbd5e1;
+}
+
+.dropzoneActive {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dropzoneReject {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+}
+
+.dropzoneDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropzoneIcon {
+  color: #60a5fa;
+}
+
+.dropzoneActive .dropzoneIcon {
+  color: #93c5fd;
+}
+
+.dropzoneReject .dropzoneIcon {
+  color: #f87171;
+}
+
+.dropzoneTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: inherit;
+  margin: 0;
+}
+
+.dropzoneHint {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0;
+  max-width: 320px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.notice {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: 8px;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #fecaca;
+  background: rgba(185, 28, 28, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  border-radius: 8px;
+}
+
+.thumbList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.thumbItem {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #374151;
+  background: #020617;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #f1f5f9;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s;
+}
+
+.removeBtn:hover {
+  background: #b91c1c;
+}
+
+.audioList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audioItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #111827;
+}
+
+.audioIcon {
+  flex-shrink: 0;
+  color: #60a5fa;
+}
+
+.audioMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.audioName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audioSize {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.audioRemove {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.audioRemove:hover {
+  background: rgba(185, 28, 28, 0.2);
+  color: #fca5a5;
+}
+
+.wrapLight .dropzone {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+.wrapLight .dropzone:hover:not(.dropzoneDisabled) {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #334155;
+}
+
+.wrapLight .dropzoneActive {
+  border-color: #2563eb;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.wrapLight .thumbItem {
+  border-color: #e2e8f0;
+}
+
+.wrapLight .audioItem {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.wrapLight .audioName {
+  color: #0f172a;
+}
+
+.wrapLight .notice {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.wrapLight .error {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
