@@ -66,12 +66,6 @@
   background-color: rgba(139, 92, 246, 0.1);
 }
 
-.trigger[data-status="cancelado"] {
-  --status-border: #9ca3af;
-  --status-dot: #9ca3af;
-  background-color: rgba(107, 114, 128, 0.12);
-}
-
 .triggerLabel {
   flex: 1;
   min-width: 0;
@@ -147,8 +141,6 @@
 .option[data-status="reprovado"] { --status-dot: #ef4444; }
 .option[data-status="pronto"] { --status-dot: #14b8a6; }
 .option[data-status="entregue"] { --status-dot: #8b5cf6; }
-.option[data-status="cancelado"] { --status-dot: #9ca3af; }
-
 .list::-webkit-scrollbar {
   width: 6px;
 }

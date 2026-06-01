@@ -15,6 +15,8 @@ export interface FormItem {
   defectsHistory?: string;
   /** Fotos do aparelho (data URLs), na ordem de exibição. */
   deviceImages?: string[];
+  /** Áudios (data URLs), na ordem de exibição. */
+  deviceAudios?: string[];
   price?: number;
   status: OrderStatus;
   createdAt?: Date | string;

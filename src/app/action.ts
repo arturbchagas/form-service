@@ -14,6 +14,12 @@ import {
     getDeviceImagesTotalBytes,
     formatImageBytes,
 } from "@/lib/readImageDataUrls";
+import {
+    MAX_DEVICE_AUDIOS,
+    MAX_AUDIO_DATA_URL_LENGTH,
+    MAX_DEVICE_AUDIOS_TOTAL_BYTES,
+    getAudiosTotalBytes,
+} from "@/lib/formMedia";
 
 // Converte string vazia ou só espaços em null para persistência no PostgreSQL.
 function emptyToNull(value: string | undefined | null): string | null {
@@ -55,6 +61,19 @@ const deviceImagesSchema = z
         }
     );
 
+const deviceAudiosSchema = z
+    .array(z.string().max(MAX_AUDIO_DATA_URL_LENGTH))
+    .max(MAX_DEVICE_AUDIOS)
+    .optional()
+    .default([])
+    .refine(
+        (audios) =>
+            getAudiosTotalBytes([], audios) <= MAX_DEVICE_AUDIOS_TOTAL_BYTES,
+        {
+            message: `O total dos áudios não pode ultrapassar ${formatImageBytes(MAX_DEVICE_AUDIOS_TOTAL_BYTES)}.`,
+        }
+    );
+
 const looseOptionalString = z.coerce.string();
 
 const createServiceOrderSchema = z.object({
@@ -71,6 +90,7 @@ const createServiceOrderSchema = z.object({
     defects: looseOptionalString.max(10_000),
     defectsHistory: looseOptionalString,
     deviceImages: deviceImagesSchema,
+    deviceAudios: deviceAudiosSchema,
     status: orderStatusSchema.default(OrderStatus.novo),
 });
 
@@ -94,6 +114,7 @@ const updateServiceOrderSchema = z.object({
     defects: looseOptionalString.max(10_000),
     defectsHistory: looseOptionalString,
     deviceImages: deviceImagesSchema,
+    deviceAudios: deviceAudiosSchema,
     status: orderStatusSchema,
 });
 
@@ -120,6 +141,7 @@ type OrderFormFields = {
     defects: string;
     defectsHistory: string;
     deviceImages: string[];
+    deviceAudios: string[];
 };
 
 function orderFieldsForPrisma(fields: OrderFormFields) {
@@ -137,6 +159,7 @@ function orderFieldsForPrisma(fields: OrderFormFields) {
         defects: emptyToNull(fields.defects),
         defectsHistory: emptyToNull(fields.defectsHistory),
         deviceImages: fields.deviceImages,
+        deviceAudios: fields.deviceAudios,
     };
 }
 
@@ -174,6 +197,7 @@ export async function createServiceOrder(
             ...orderFieldsForPrisma({
                 ...rest,
                 deviceImages: validData.deviceImages ?? [],
+                deviceAudios: validData.deviceAudios ?? [],
             }),
             status: OrderStatus.novo, // Toda OS começa com status "novo"
             userId,                   // Liga a OS ao usuário que a criou
@@ -219,6 +243,7 @@ export async function updateServiceOrder(
             ...orderFieldsForPrisma({
                 ...rest,
                 deviceImages: rest.deviceImages ?? [],
+                deviceAudios: rest.deviceAudios ?? [],
             }),
             status,
         } as Prisma.ServiceOrderUncheckedUpdateInput,

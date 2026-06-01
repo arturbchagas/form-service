@@ -1,4 +1,5 @@
 "use client";
+import { Music2 } from "lucide-react";
 import { FormItem } from "../../types/Form-itens/FormItem";
 import StatusBadge from "../StatusBadge/StatusBadge";
 import StatusSelect from "../StatusSelect/StatusSelect";
@@ -47,6 +48,29 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
                 </figure>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Áudios do aparelho — player nativo para escutar cada faixa */}
+        {items.deviceAudios && items.deviceAudios.length > 0 && (
+          <div className={styles.deviceAudiosBlock}>
+            <span className={styles.deviceAudiosLabel}>
+              Áudios ({items.deviceAudios.length})
+            </span>
+            <ul className={styles.deviceAudioList}>
+              {items.deviceAudios.map((src, i) => (
+                <li key={`audio-${i}`} className={styles.deviceAudioItem}>
+                  <div className={styles.deviceAudioHeader}>
+                    <Music2 size={16} className={styles.deviceAudioIcon} />
+                    <span className={styles.deviceAudioName}>Áudio {i + 1}</span>
+                  </div>
+                  <audio controls preload="metadata" className={styles.deviceAudioPlayer}>
+                    <source src={src} />
+                    Seu navegador não suporta reprodução de áudio.
+                  </audio>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -117,12 +141,12 @@ export default function Modal({ items, closeModal, onChangeStatus }: UserModalPr
           </div>
 
           <div className={`${styles.info_row} ${styles.info_row_full}`}>
-            <span className={styles.info_label}>Defeitos</span>
+            <span className={styles.info_label}>Defeitos reclamados</span>
             <span className={styles.info_value}>{items.defects || "—"}</span>
           </div>
 
           <div className={`${styles.info_row} ${styles.info_row_full}`}>
-            <span className={styles.info_label}>Histórico de defeitos</span>
+            <span className={styles.info_label}>Defeitos encontrados e observações</span>
             <span className={styles.info_value}>{items.defectsHistory || "—"}</span>
           </div>
 

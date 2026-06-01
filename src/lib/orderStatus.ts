@@ -7,7 +7,6 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   [OrderStatus.reprovado]: "Reprovado",
   [OrderStatus.pronto]: "Pronto",
   [OrderStatus.entregue]: "Entregue",
-  [OrderStatus.cancelado]: "Cancelado",
 };
 
 export const ORDER_STATUS_ORDER: OrderStatus[] = [
@@ -17,7 +16,6 @@ export const ORDER_STATUS_ORDER: OrderStatus[] = [
   OrderStatus.reprovado,
   OrderStatus.pronto,
   OrderStatus.entregue,
-  OrderStatus.cancelado,
 ];
 
 export const ORDER_STATUS_OPTIONS = ORDER_STATUS_ORDER.map((value) => ({

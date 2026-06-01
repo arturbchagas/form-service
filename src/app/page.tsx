@@ -26,6 +26,7 @@ interface ServiceOrderRow {
   defects: string | null;
   defectsHistory: string | null;
   deviceImages: string[];
+  deviceAudios: string[];
   price: number | null;
   status: OrderStatus;
   userId: string | null;
@@ -66,6 +67,7 @@ export default async function Home() {
     defects: order.defects ?? "",
     defectsHistory: order.defectsHistory ?? "",
     deviceImages: order.deviceImages?.length ? [...order.deviceImages] : [],
+    deviceAudios: order.deviceAudios?.length ? [...order.deviceAudios] : [],
     price: order.price ?? undefined,
     status: order.status,
     createdAt: order.createdAt ?? undefined,

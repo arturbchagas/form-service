@@ -101,13 +101,6 @@
   --status-text: #c4b5fd;
 }
 
-.badge[data-status="cancelado"] {
-  --status-dot: #9ca3af;
-  --status-bg: rgba(107, 114, 128, 0.2);
-  --status-border: rgba(156, 163, 175, 0.5);
-  --status-text: #d1d5db;
-}
-
 /* Pulso nos status que exigem atenção */
 .badge[data-pulse="true"] .dot {
   animation: statusPulse 2.2s ease-in-out infinite;

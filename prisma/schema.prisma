@@ -19,7 +19,6 @@ enum OrderStatus {
   reprovado
   pronto
   entregue
-  cancelado
 }
 
 model User {
@@ -48,6 +47,8 @@ model ServiceOrder {
   defectsHistory String?
   /// URLs em base64 (data URL) das fotos do aparelho; ordem = ordem de exibição.
   deviceImages   String[] @default([])
+  /// URLs em base64 (data URL) dos áudios; ordem = ordem de exibição.
+  deviceAudios   String[] @default([])
   price          Float?
   status         OrderStatus @default(novo)
   userId         String?
