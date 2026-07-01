@@ -51,6 +51,7 @@ export default function TableService({
 
   const [budgetModalItem, setBudgetModalItem] = useState<FormItem | null>(null);
   const [budgetServiceDescription, setBudgetServiceDescription] = useState("");
+  const [budgetObservations, setBudgetObservations] = useState("");
 
   const [receiptModalItem, setReceiptModalItem] = useState<FormItem | null>(null);
 
@@ -92,20 +93,23 @@ export default function TableService({
     e.stopPropagation();
     setBudgetModalItem(item);
     setBudgetServiceDescription("");
+    setBudgetObservations("");
   }
 
   function closeBudgetModal() {
     setBudgetModalItem(null);
     setBudgetServiceDescription("");
+    setBudgetObservations("");
   }
 
   async function handleConfirmBudgetPdf() {
     if (!budgetModalItem) return;
     const item = budgetModalItem;
     const description = budgetServiceDescription;
+    const observations = budgetObservations;
     closeBudgetModal();
     const { generateBudgetPDF } = await import("../Budget/generateBudgetPDF");
-    await generateBudgetPDF(item, { serviceDescription: description });
+    await generateBudgetPDF(item, { serviceDescription: description, observations });
   }
 
   function openReceiptModal(e: React.MouseEvent, item: FormItem) {
@@ -447,6 +451,17 @@ export default function TableService({
               placeholder="Ex.: conserto do circuito de potência e manutenção"
               rows={4}
               autoFocus
+            />
+            <label className={styles.budgetLabel} htmlFor="budget-observations">
+              Observações <span className={styles.budgetOptional}>(opcional)</span>
+            </label>
+            <textarea
+              id="budget-observations"
+              className={styles.budgetTextarea}
+              value={budgetObservations}
+              onChange={(e) => setBudgetObservations(e.target.value)}
+              placeholder="Ex.: prazo estimado de 5 dias úteis"
+              rows={3}
             />
             <div className={styles.miniModalActions}>
               <button type="button" className={styles.cancelBtn} onClick={closeBudgetModal}>

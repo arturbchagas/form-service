@@ -2,11 +2,15 @@
 
 import prisma from "@/lib/prisma";
 import { OrderStatus, Prisma } from "@prisma/client";
+import { getClientForCurrentUser } from "@/app/actions/clients";
+import {
+  mapServiceOrderToFormItem,
+  type ServiceOrderRecord,
+} from "@/lib/mappers/serviceOrder";
 import { revalidatePath } from "next/cache";
 import { FormItem } from "@/types/Form-itens/FormItem";
 import { z } from "zod";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/server-auth";
 import {
     MAX_DEVICE_IMAGES,
     MAX_DATA_URL_LENGTH,
@@ -20,22 +24,13 @@ import {
     MAX_DEVICE_AUDIOS_TOTAL_BYTES,
     getAudiosTotalBytes,
 } from "@/lib/formMedia";
+import type { CreateServiceOrderInput } from "@/types/service/ServiceOrderInput";
 
 // Converte string vazia ou só espaços em null para persistência no PostgreSQL.
 function emptyToNull(value: string | undefined | null): string | null {
     if (value == null) return null;
     const t = value.trim();
     return t === "" ? null : t;
-}
-
-// Helper reutilizável: lê a sessão ativa e retorna o ID do usuário logado.
-// Se não houver sessão (usuário não autenticado), lança erro imediatamente.
-// Usado em TODAS as actions para garantir que só usuários logados operam.
-async function getCurrentUserId(): Promise<string> {
-    const session = await getServerSession(authOptions);
-    const userId = (session?.user as { id?: string })?.id;
-    if (!userId) throw new Error("Não autorizado.");
-    return userId;
 }
 
 // --- SCHEMAS DE VALIDAÇÃO (Zod) ---
@@ -77,12 +72,7 @@ const deviceAudiosSchema = z
 const looseOptionalString = z.coerce.string();
 
 const createServiceOrderSchema = z.object({
-    name: looseOptionalString.max(500),
-    empresa: looseOptionalString,
-    phone: looseOptionalString,
-    cep: looseOptionalString.max(20),
-    email: optionalEmail,
-    address: looseOptionalString,
+    clientId: z.string().min(1, "Cliente é obrigatório"),
     aparelho: looseOptionalString.max(500),
     brand: looseOptionalString,
     model: looseOptionalString,
@@ -127,13 +117,7 @@ const deleteServiceOrderSchema = z.object({
     id: z.string().min(1, "Id é obrigatório"),
 });
 
-type OrderFormFields = {
-    name: string;
-    empresa: string;
-    phone: string;
-    cep: string;
-    email: string;
-    address: string;
+type ServiceOrderDeviceFields = {
     aparelho: string;
     brand: string;
     model: string;
@@ -144,14 +128,8 @@ type OrderFormFields = {
     deviceAudios: string[];
 };
 
-function orderFieldsForPrisma(fields: OrderFormFields) {
+function serviceFieldsForPrisma(fields: ServiceOrderDeviceFields) {
     return {
-        name: emptyToNull(fields.name),
-        empresa: emptyToNull(fields.empresa),
-        phone: emptyToNull(fields.phone),
-        cep: emptyToNull(fields.cep),
-        email: emptyToNull(fields.email),
-        address: emptyToNull(fields.address),
         aparelho: emptyToNull(fields.aparelho),
         brand: emptyToNull(fields.brand),
         model: emptyToNull(fields.model),
@@ -163,18 +141,17 @@ function orderFieldsForPrisma(fields: OrderFormFields) {
     };
 }
 
+function mapOrderToFormItem(order: ServiceOrderRecord) {
+  return mapServiceOrderToFormItem(order);
+}
+
 // --- CREATE ---
-// Cria uma nova ordem de serviço associada ao usuário logado.
-export async function createServiceOrder(
-    formData: Omit<FormItem, "id" | "createdAt" | "updatedAt">
-) {
-    // 1. Verifica se há um usuário autenticado
+// Cria uma nova ordem de serviço vinculada a um cliente cadastrado.
+export async function createServiceOrder(formData: CreateServiceOrderInput) {
     const userId = await getCurrentUserId();
 
-    // 2. Valida os dados do formulário com o schema Zod
     const parseResult = createServiceOrderSchema.safeParse(formData);
 
-    // 3. Se a validação falhar, lança erro com os campos problemáticos
     if (!parseResult.success) {
         const { fieldErrors, formErrors } = parseResult.error.flatten();
         throw new Error(
@@ -188,26 +165,33 @@ export async function createServiceOrder(
 
     const validData = parseResult.data;
 
-    const { status, ...rest } = validData;
+    const client = await getClientForCurrentUser(validData.clientId);
+
+    const { status, clientId, ...serviceRest } = validData;
     void status;
 
-    // 4. Insere no banco via Prisma, forçando status "novo" e vinculando ao userId
     const created = await prisma.serviceOrder.create({
         data: {
-            ...orderFieldsForPrisma({
-                ...rest,
+            clientId,
+            name: emptyToNull(client.name),
+            empresa: emptyToNull(client.empresa),
+            phone: emptyToNull(client.phone),
+            cep: emptyToNull(client.cep),
+            email: emptyToNull(client.email),
+            address: emptyToNull(client.address),
+            ...serviceFieldsForPrisma({
+                ...serviceRest,
                 deviceImages: validData.deviceImages ?? [],
                 deviceAudios: validData.deviceAudios ?? [],
             }),
-            status: OrderStatus.novo, // Toda OS começa com status "novo"
-            userId,                   // Liga a OS ao usuário que a criou
+            status: OrderStatus.novo,
+            userId,
         } as Prisma.ServiceOrderUncheckedCreateInput,
     });
 
-    // 5. Invalida o cache da página "/" para exibir a nova OS imediatamente
     revalidatePath("/");
 
-    return created as unknown as FormItem;
+    return mapOrderToFormItem(created as unknown as ServiceOrderRecord);
 }
 
 // --- UPDATE (dados completos) ---
@@ -240,8 +224,19 @@ export async function updateServiceOrder(
     const updated = await prisma.serviceOrder.update({
         where: { id: orderId, userId },
         data: {
-            ...orderFieldsForPrisma({
-                ...rest,
+            name: emptyToNull(rest.name),
+            empresa: emptyToNull(rest.empresa),
+            phone: emptyToNull(rest.phone),
+            cep: emptyToNull(rest.cep),
+            email: emptyToNull(rest.email),
+            address: emptyToNull(rest.address),
+            ...serviceFieldsForPrisma({
+                aparelho: rest.aparelho,
+                brand: rest.brand,
+                model: rest.model,
+                serialNumber: rest.serialNumber,
+                defects: rest.defects,
+                defectsHistory: rest.defectsHistory,
                 deviceImages: rest.deviceImages ?? [],
                 deviceAudios: rest.deviceAudios ?? [],
             }),
@@ -250,7 +245,7 @@ export async function updateServiceOrder(
     });
 
     revalidatePath("/");
-    return updated as unknown as FormItem;
+    return mapOrderToFormItem(updated as unknown as ServiceOrderRecord);
 }
 
 // --- UPDATE STATUS ---

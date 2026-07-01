@@ -3,6 +3,8 @@ import { FormItem } from "../../types/Form-itens/FormItem";
 export type GenerateBudgetPdfOptions = {
   /** Descrição do serviço no PDF; vazio deixa a célula em branco. */
   serviceDescription?: string;
+  /** Observações no rodapé do PDF; vazio omite a seção. */
+  observations?: string;
 };
 
 /**
@@ -141,6 +143,7 @@ export async function generateBudgetPDF(
       React.createElement(BudgetTemplate, {
         item,
         serviceDescription: options?.serviceDescription ?? "",
+        observations: options?.observations ?? "",
       })
     );
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
