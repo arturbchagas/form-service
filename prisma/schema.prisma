@@ -26,13 +26,31 @@ model User {
   name      String
   email     String   @unique
   password  String
+  clients       Client[]
   serviceOrders ServiceOrder[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+model Client {
+  id            String         @id @default(cuid())
+  name          String?
+  empresa       String?
+  phone         String?
+  cep           String?
+  email         String?
+  address       String?
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  serviceOrders ServiceOrder[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
 model ServiceOrder {
   id String @id @default(cuid()) @unique
+  clientId       String?
+  client         Client?     @relation(fields: [clientId], references: [id])
   name           String?
   empresa        String?
   phone          String?

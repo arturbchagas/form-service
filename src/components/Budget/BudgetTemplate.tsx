@@ -6,6 +6,8 @@ interface BudgetTemplateProps {
   item: FormItem;
   /** Texto opcional vindo do modal antes de gerar o PDF; se vazio, a célula fica em branco. */
   serviceDescription?: string;
+  /** Observações opcionais exibidas no rodapé do documento. */
+  observations?: string;
 }
 
 function brandModel(item: FormItem): string {
@@ -16,7 +18,7 @@ function brandModel(item: FormItem): string {
 }
 
 const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
-  ({ item, serviceDescription = "" }, ref) => {
+  ({ item, serviceDescription = "", observations = "" }, ref) => {
   const clientTitle = item.empresa?.trim() || item.name?.trim() || "—";
   const budgetDate = new Date().toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -54,6 +56,7 @@ const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
   };
 
   const descText = serviceDescription.trim();
+  const observationsText = observations.trim();
 
   const th: React.CSSProperties = {
     ...cell,
@@ -261,6 +264,20 @@ const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
         >
           Caso tenha alguma dúvida sobre os termos ou precise de mais detalhes, estou à disposição para ajudar.
         </p>
+
+        {observationsText ? (
+          <div
+            style={{
+              marginTop: "14px",
+              borderTop: "1px solid #ccc",
+              paddingTop: "12px",
+              ...avoidPageSplit,
+            }}
+          >
+            <p style={{ fontWeight: 700, margin: "0 0 6px", fontSize: "12px" }}>Observações</p>
+            <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{observationsText}</p>
+          </div>
+        ) : null}
       </div>
 
       <div

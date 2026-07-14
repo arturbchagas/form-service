@@ -12,16 +12,16 @@ if (!connectionString || typeof connectionString !== "string") {
 
 const adapter = new PrismaNeon({ connectionString });
 
-const prismaClientSingleton = () => {
+function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter });
-};
+}
 
 declare global {
   // eslint-disable-next-line no-var
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+  var prisma: PrismaClient | undefined;
 }
 
-const prisma = globalThis.prisma ?? prismaClientSingleton();
+const prisma: PrismaClient = globalThis.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
 

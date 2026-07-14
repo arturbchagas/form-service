@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import styles from "../../app/page.module.css";
-import FormService from "../form/FormService";
+import ServiceOrderCreateModal from "../form/service/ServiceOrderCreateModal";
 import TableService from "../Table/TableService";
 import SearchBar from "../search/SearchBar";
 import Modal from "../modal/Modal";
 import { FormItem } from "../../types/Form-itens/FormItem";
+import type { ClientItem } from "@/types/client/ClientItem";
+import type { CreateServiceOrderInput } from "@/types/service/ServiceOrderInput";
 import {
   createServiceOrder,
   updateStatus,
@@ -16,13 +18,13 @@ import {
 } from "../../app/action";
 
 interface HomeClientProps {
-  // Dados iniciais vindos do servidor (page.tsx), evitando uma segunda requisição ao banco
   initialItems: FormItem[];
+  initialClients: ClientItem[];
 }
 
 // HomeClient é o "cérebro" da interface: recebe os dados do servidor e
 // coordena todos os componentes filhos (formulário, tabela, busca, modal).
-export default function HomeClient({ initialItems }: HomeClientProps) {
+export default function HomeClient({ initialItems, initialClients }: HomeClientProps) {
   // Lista de ordens exibida na tabela — começa com os dados do servidor
   const [items, setItems] = useState<FormItem[]>(initialItems);
 
@@ -103,9 +105,7 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
   }
 
   // Cria uma nova OS e adiciona no topo da lista (mais recente primeiro)
-  async function handleAddItem(
-    item: Omit<FormItem, "id" | "createdAt" | "updatedAt">
-  ) {
+  async function handleAddItem(item: CreateServiceOrderInput) {
     try {
       const created = await createServiceOrder(item);
       setItems((prev) => [created, ...prev]);
@@ -143,7 +143,10 @@ export default function HomeClient({ initialItems }: HomeClientProps) {
     <div className={styles.page}>
       <main className={styles.main}>
         {/* Formulário de criação de nova OS (expansível/recolhível) */}
-        <FormService onAddItem={handleAddItem} />
+        <ServiceOrderCreateModal
+          initialClients={initialClients}
+          onAddItem={handleAddItem}
+        />
 
         {/* Barra de busca — filtra a lista localmente sem ir ao banco */}
         <SearchBar value={searchValue} onChange={setSearchValue} />

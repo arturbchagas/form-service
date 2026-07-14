@@ -1,6 +1,7 @@
 import { OrderStatus } from "@prisma/client"
 export interface FormItem {
   id: string;
+  clientId?: string;
   name?: string;
   empresa?: string;
   phone?: string;
