@@ -1,0 +1,123 @@
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  background: #0b1220;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.th,
+.td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #1f2937;
+}
+
+.th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  background: #111827;
+}
+
+.td {
+  color: #e2e8f0;
+  vertical-align: middle;
+}
+
+.rowBusy {
+  opacity: 0.55;
+}
+
+.empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #94a3b8;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  background: #0b1220;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  color: #fff;
+}
+
+.actionBtn:hover:not(:disabled) {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.actionBtn:active:not(:disabled) {
+  transform: scale(0.91);
+}
+
+.actionBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.actionLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.actionServices {
+  background: #0d9488;
+}
+
+.actionServices:hover:not(:disabled) {
+  background: #0f766e;
+}
+
+.actionEdit {
+  background: #2563eb;
+}
+
+.actionEdit:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.actionDelete {
+  background: #dc2626;
+}
+
+.actionDelete:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+@media (max-width: 720px) {
+  .actionLabel {
+    display: none;
+  }
+
+  .actionBtn {
+    padding: 0;
+    width: 28px;
+  }
+}

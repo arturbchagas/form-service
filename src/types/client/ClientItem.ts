@@ -25,3 +25,14 @@ export function clientDisplayLabel(client: ClientItem): string {
   if (empresa && name) return `${empresa} — ${name}`;
   return empresa || name || "Cliente sem identificação";
 }
+
+export function clientToFormValues(client: ClientItem): ClientFormValues {
+  return {
+    name: client.name ?? "",
+    empresa: client.empresa ?? "",
+    phone: client.phone ?? "",
+    cep: client.cep ?? "",
+    email: client.email ?? "",
+    address: client.address ?? "",
+  };
+}

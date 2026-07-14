@@ -4,7 +4,12 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentUserId } from "@/lib/server-auth";
+import {
+  mapServiceOrderToFormItem,
+  type ServiceOrderRecord,
+} from "@/lib/mappers/serviceOrder";
 import type { ClientFormValues, ClientItem } from "@/types/client/ClientItem";
+import type { FormItem } from "@/types/Form-itens/FormItem";
 
 function emptyToNull(value: string | undefined | null): string | null {
   if (value == null) return null;
@@ -130,8 +135,15 @@ export async function updateClient(
     );
   }
 
-  const updated = await prisma.client.update({
+  const existing = await prisma.client.findFirst({
     where: { id, userId },
+  });
+  if (!existing) {
+    throw new Error("Cliente não encontrado ou não pertence ao usuário.");
+  }
+
+  const updated = await prisma.client.update({
+    where: { id },
     data: clientFieldsForPrisma(parseResult.data),
   });
 
@@ -144,6 +156,13 @@ export async function updateClient(
 export async function deleteClient(id: string): Promise<void> {
   const userId = await getCurrentUserId();
 
+  const existing = await prisma.client.findFirst({
+    where: { id, userId },
+  });
+  if (!existing) {
+    throw new Error("Cliente não encontrado ou não pertence ao usuário.");
+  }
+
   const ordersCount = await prisma.serviceOrder.count({
     where: { clientId: id, userId },
   });
@@ -155,9 +174,32 @@ export async function deleteClient(id: string): Promise<void> {
   }
 
   await prisma.client.delete({
-    where: { id, userId },
+    where: { id },
   });
 
   revalidatePath("/clientes");
   revalidatePath("/");
+}
+
+/** Lista ordens de serviço vinculadas a um cliente do usuário logado. */
+export async function listServiceOrdersByClient(
+  clientId: string
+): Promise<FormItem[]> {
+  const userId = await getCurrentUserId();
+
+  const client = await prisma.client.findFirst({
+    where: { id: clientId, userId },
+  });
+  if (!client) {
+    throw new Error("Cliente não encontrado ou não pertence ao usuário.");
+  }
+
+  const orders = await prisma.serviceOrder.findMany({
+    where: { clientId, userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return orders.map((order) =>
+    mapServiceOrderToFormItem(order as unknown as ServiceOrderRecord)
+  );
 }
