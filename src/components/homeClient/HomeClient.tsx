@@ -106,12 +106,8 @@ export default function HomeClient({ initialItems, initialClients }: HomeClientP
 
   // Cria uma nova OS e adiciona no topo da lista (mais recente primeiro)
   async function handleAddItem(item: CreateServiceOrderInput) {
-    try {
-      const created = await createServiceOrder(item);
-      setItems((prev) => [created, ...prev]);
-    } catch (error) {
-      console.error("Erro ao criar ordem de serviço:", error);
-    }
+    const created = await createServiceOrder(item);
+    setItems((prev) => [created, ...prev]);
   }
 
   // Normaliza o texto de busca: sem espaços extras e em minúsculas para comparação

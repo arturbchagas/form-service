@@ -112,6 +112,25 @@ export function validateFormMedia(state: FormMediaFilesState): FormMediaValidati
   };
 }
 
+export const FILE_READ_NOT_FOUND_MESSAGE =
+  "Não foi possível ler o arquivo. No celular, isso é comum com áudios/fotos do WhatsApp — salve na galeria ou selecione o arquivo outra vez.";
+
+export function isFileReadNotFoundError(err: unknown): boolean {
+  if (err instanceof DOMException && err.name === "NotFoundError") return true;
+  if (err instanceof Error && err.name === "NotFoundError") return true;
+  return false;
+}
+
+export function formatFileReadError(err: unknown, fileName?: string): string {
+  if (isFileReadNotFoundError(err)) {
+    return fileName
+      ? `${FILE_READ_NOT_FOUND_MESSAGE} (${fileName})`
+      : FILE_READ_NOT_FOUND_MESSAGE;
+  }
+  if (err instanceof Error && err.message) return err.message;
+  return "Falha ao ler arquivo.";
+}
+
 export function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -123,6 +142,19 @@ export function readFileAsDataUrl(file: File): Promise<string> {
       reject(reader.error ?? new Error("Falha ao ler arquivo"));
     reader.readAsDataURL(file);
   });
+}
+
+/** Lê vários arquivos; falha cedo com mensagem clara se o blob não existir mais (comum no mobile). */
+export async function readFilesAsDataUrls(files: File[]): Promise<string[]> {
+  const dataUrls: string[] = [];
+  for (const file of files) {
+    try {
+      dataUrls.push(await readFileAsDataUrl(file));
+    } catch (err) {
+      throw new Error(formatFileReadError(err, file.name));
+    }
+  }
+  return dataUrls;
 }
 
 /** Converte arquivos novos + existentes para persistência (API atual). */
