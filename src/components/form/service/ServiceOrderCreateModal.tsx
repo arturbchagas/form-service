@@ -151,7 +151,11 @@ export default function ServiceOrderCreateModal({
       handleClose();
     } catch (err) {
       console.error("Erro ao criar ordem de serviço:", err);
-      setSubmitError("Não foi possível criar a ordem de serviço. Tente novamente.");
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Não foi possível criar a ordem de serviço. Tente novamente.";
+      setSubmitError(message);
     } finally {
       setSubmitting(false);
     }

@@ -12,8 +12,10 @@ import {
   acceptFilesWithinLimit,
   formatDropRejections,
   formatFileBytes,
+  formatFileReadError,
   getAudiosTotalBytes,
   getFilesTotalBytes,
+  readFilesAsDataUrls,
   type FormMediaFilesState,
   validateFormMedia,
 } from "@/lib/formMedia";
@@ -71,6 +73,8 @@ export default function FormMediaUpload({
 }: FormMediaUploadProps) {
   const [imageNotice, setImageNotice] = useState<string | null>(null);
   const [audioNotice, setAudioNotice] = useState<string | null>(null);
+  const [readingImages, setReadingImages] = useState(false);
+  const [readingAudios, setReadingAudios] = useState(false);
 
   const validation = useMemo(
     () =>
@@ -94,7 +98,10 @@ export default function FormMediaUpload({
   const audiosUsedBytes = getAudiosTotalBytes(audioFiles, existingAudios);
 
   const onDropImages = useCallback(
-    (accepted: File[], rejections: import("react-dropzone").FileRejection[]) => {
+    async (
+      accepted: File[],
+      rejections: import("react-dropzone").FileRejection[]
+    ) => {
       const rejectMsgs = formatDropRejections(rejections);
       const { accepted: toAdd, errors } = acceptFilesWithinLimit(
         accepted,
@@ -110,13 +117,27 @@ export default function FormMediaUpload({
       );
       const notices = [...rejectMsgs, ...errors];
       setImageNotice(notices.length ? notices.join(" ") : null);
-      if (toAdd.length) onImageFilesChange([...imageFiles, ...toAdd]);
+      if (!toAdd.length) return;
+
+      // Lê na hora da seleção: no mobile (ex.: WhatsApp) o blob pode sumir antes do submit.
+      setReadingImages(true);
+      try {
+        const dataUrls = await readFilesAsDataUrls(toAdd);
+        onExistingImagesChange([...existingImages, ...dataUrls]);
+      } catch (err) {
+        setImageNotice(formatFileReadError(err));
+      } finally {
+        setReadingImages(false);
+      }
     },
-    [existingImages, imageFiles, onImageFilesChange]
+    [existingImages, imageFiles, onExistingImagesChange]
   );
 
   const onDropAudios = useCallback(
-    (accepted: File[], rejections: import("react-dropzone").FileRejection[]) => {
+    async (
+      accepted: File[],
+      rejections: import("react-dropzone").FileRejection[]
+    ) => {
       const rejectMsgs = formatDropRejections(rejections);
       const { accepted: toAdd, errors } = acceptFilesWithinLimit(
         accepted,
@@ -132,27 +153,37 @@ export default function FormMediaUpload({
       );
       const notices = [...rejectMsgs, ...errors];
       setAudioNotice(notices.length ? notices.join(" ") : null);
-      if (toAdd.length) onAudioFilesChange([...audioFiles, ...toAdd]);
+      if (!toAdd.length) return;
+
+      setReadingAudios(true);
+      try {
+        const dataUrls = await readFilesAsDataUrls(toAdd);
+        onExistingAudiosChange([...existingAudios, ...dataUrls]);
+      } catch (err) {
+        setAudioNotice(formatFileReadError(err));
+      } finally {
+        setReadingAudios(false);
+      }
     },
-    [audioFiles, existingAudios, onAudioFilesChange]
+    [audioFiles, existingAudios, onExistingAudiosChange]
   );
 
   const imageDropzone = useDropzone({
     accept: IMAGE_ACCEPT,
-    disabled: imagesAtLimit,
+    disabled: imagesAtLimit || readingImages,
     maxSize: MAX_IMAGE_FILE_BYTES,
-    onDrop: onDropImages,
-    noClick: imagesAtLimit,
-    noKeyboard: imagesAtLimit,
+    onDrop: (accepted, rejections) => void onDropImages(accepted, rejections),
+    noClick: imagesAtLimit || readingImages,
+    noKeyboard: imagesAtLimit || readingImages,
   });
 
   const audioDropzone = useDropzone({
     accept: AUDIO_ACCEPT,
-    disabled: audiosAtLimit,
+    disabled: audiosAtLimit || readingAudios,
     maxSize: MAX_AUDIO_FILE_BYTES,
-    onDrop: onDropAudios,
-    noClick: audiosAtLimit,
-    noKeyboard: audiosAtLimit,
+    onDrop: (accepted, rejections) => void onDropAudios(accepted, rejections),
+    noClick: audiosAtLimit || readingAudios,
+    noKeyboard: audiosAtLimit || readingAudios,
   });
 
   const wrapClass = `${styles.wrap} ${variant === "light" ? styles.wrapLight : ""}`;
@@ -180,9 +211,11 @@ export default function FormMediaUpload({
             <ImagePlus className={styles.dropzoneIcon} size={28} />
           )}
           <p className={styles.dropzoneTitle}>
-            {imageDropzone.isDragActive
-              ? "Solte as imagens aqui"
-              : "Arraste imagens ou clique para selecionar"}
+            {readingImages
+              ? "Lendo imagens…"
+              : imageDropzone.isDragActive
+                ? "Solte as imagens aqui"
+                : "Arraste imagens ou clique para selecionar"}
           </p>
           <p className={styles.dropzoneHint}>
             PNG, JPG ou WebP · até {formatFileBytes(MAX_IMAGE_FILE_BYTES)} por foto ·{" "}
@@ -268,9 +301,11 @@ export default function FormMediaUpload({
             <Music2 className={styles.dropzoneIcon} size={28} />
           )}
           <p className={styles.dropzoneTitle}>
-            {audioDropzone.isDragActive
-              ? "Solte os áudios aqui"
-              : "Arraste áudios ou clique para selecionar"}
+            {readingAudios
+              ? "Lendo áudios…"
+              : audioDropzone.isDragActive
+                ? "Solte os áudios aqui"
+                : "Arraste áudios ou clique para selecionar"}
           </p>
           <p className={styles.dropzoneHint}>
             MP3, WAV ou OGG · até {formatFileBytes(MAX_AUDIO_FILE_BYTES)} por arquivo ·{" "}
