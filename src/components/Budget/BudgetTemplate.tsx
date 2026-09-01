@@ -254,26 +254,34 @@ const BudgetTemplate = forwardRef<HTMLDivElement, BudgetTemplateProps>(
           serão destinadas ao descarte ecológico.
         </p>
 
-        <p style={{ margin: "0 0 6px", ...avoidPageSplit }}>
-          <strong>6. RETIRADA E CUSTÓDIA DE EQUIPAMENTOS:</strong> Concluído o serviço ou recusado este orçamento,
-          o cliente será notificado por meio dos canais de contato fornecidos. A partir da notificação, o cliente
-          dispõe do prazo improrrogável de 30 (trinta) dias corridos para efetuar o pagamento e retirar o
-          equipamento.
-        </p>
-        <ul style={{ margin: "0 0 14px 18px", padding: 0 }}>
-          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
-            <strong>Taxa de Armazenamento:</strong> Findo o prazo de 30 dias, restará configurada a mora do
-            credor (art. 400 do Código Civil). A partir do 31º dia, incidirá uma Taxa de Armazenamento e Custódia
-            no valor diário de R$10,00 (ou mensal de R$300,00), cobrada em razão
-            da ocupação de espaço físico, guarda e conservação do bem (arts. 627 e 651 do Código Civil Brasileiro).
-          </li>
-          <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
-            <strong>Abandono:</strong> O não comparecimento para a retirada do equipamento por prazo superior a 90
-            (noventa) dias contados da primeira notificação autoriza a PHC Eletrônica Industrial a adotar as medidas
-            judiciais cabíveis para a cobrança dos custos de reparo e das taxas de custódia acumuladas, inclusive
-            mediante pedido judicial de retenção ou adjudicação do bem para quitação integral do débito.
-          </li>
-        </ul>
+        <div
+          style={{
+            marginTop: "28px",
+            paddingTop: "24px",
+            ...avoidPageSplit,
+          }}
+        >
+          <p style={{ margin: "0 0 6px" }}>
+            <strong>6. RETIRADA E CUSTÓDIA DE EQUIPAMENTOS:</strong> Concluído o serviço ou recusado este orçamento,
+            o cliente será notificado por meio dos canais de contato fornecidos. A partir da notificação, o cliente
+            dispõe do prazo improrrogável de 30 (trinta) dias corridos para efetuar o pagamento e retirar o
+            equipamento.
+          </p>
+          <ul style={{ margin: "0 0 14px 18px", padding: 0 }}>
+            <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
+              <strong>Taxa de Armazenamento:</strong> Findo o prazo de 30 dias, restará configurada a mora do
+              credor (art. 400 do Código Civil). A partir do 31º dia, incidirá uma Taxa de Armazenamento e Custódia
+              no valor diário de R$10,00 (ou mensal de R$300,00), cobrada em razão
+              da ocupação de espaço físico, guarda e conservação do bem (arts. 627 e 651 do Código Civil Brasileiro).
+            </li>
+            <li style={{ marginBottom: "4px", ...avoidPageSplit }}>
+              <strong>Abandono:</strong> O não comparecimento para a retirada do equipamento por prazo superior a 90
+              (noventa) dias contados da primeira notificação autoriza a PHC Eletrônica Industrial a adotar as medidas
+              judiciais cabíveis para a cobrança dos custos de reparo e das taxas de custódia acumuladas, inclusive
+              mediante pedido judicial de retenção ou adjudicação do bem para quitação integral do débito.
+            </li>
+          </ul>
+        </div>
 
         <p
           style={{
