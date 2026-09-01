@@ -106,6 +106,19 @@ function cutsMmToPx(cutsMm: number[], imgHeightMm: number, H: number): number[] 
   return px;
 }
 
+function budgetPdfFileName(item: FormItem): string {
+  const clientLabel =
+    item.empresa?.trim() || item.name?.trim() || `OS-${item.id}`;
+
+  const safeName = clientLabel
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 100);
+
+  return `orcamento-${safeName || `OS-${item.id}`}.pdf`;
+}
+
 /**
  * Gera PDF do orçamento (layout alinhado ao modelo PHC) a partir do HTML renderizado.
  * Usa várias páginas A4 quando o conteúdo excede uma página, com cortes inteligentes na imagem
@@ -207,7 +220,7 @@ export async function generateBudgetPDF(
       pdf.addImage(imgData, "PNG", offsetX, 0, drawW, drawH);
     }
 
-    pdf.save(`orcamento-OS-${item.id}.pdf`);
+    pdf.save(budgetPdfFileName(item));
   } finally {
     root.unmount();
     document.body.removeChild(container);
