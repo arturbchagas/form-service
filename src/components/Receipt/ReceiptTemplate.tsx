@@ -11,12 +11,11 @@ export interface ReceiptTemplateProps {
   receiptDate: Date;
 }
 
-function formatDateCityLine(date: Date): string {
-  return date.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+function formatDateLongPtBr(date: Date): string {
+  const day = date.getDate();
+  const month = date.toLocaleDateString("pt-BR", { month: "long" });
+  const year = date.getFullYear();
+  return `${day} de ${month} de ${year}`;
 }
 
 function capitalizeFirstSentence(s: string): string {
@@ -39,7 +38,8 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
     });
     const priceExtensive = capitalizeFirstSentence(numberToWords(totalPrice));
 
-    const dateLine = `${client.city} - ${client.state}, ${formatDateCityLine(receiptDate)}.`;
+    const dateLine = `${client.city} - ${client.state}, ${formatDateLongPtBr(receiptDate)}.`;
+    const serviceText = client.serviceDescription.trim() || "—";
 
     const listItem: React.CSSProperties = {
       margin: "0 0 8px 0",
@@ -75,18 +75,15 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
         </div>
 
         <div style={{ textAlign: "center", marginBottom: "8px", fontWeight: 700, fontSize: "17px" }}>
-          VALOR: {priceFormatted}
+          Valor: {priceFormatted}
         </div>
         <div style={{ textAlign: "center", marginBottom: "32px", fontSize: "15px" }}>({priceExtensive})</div>
 
-        <p style={{ margin: "0 0 10px" }}>
-          <strong>Recebemos de:</strong> {client.clientName}
+        <p style={{ margin: "0 0 20px", textAlign: "justify" }}>
+          Recebi(emos) de {client.clientName}, inscrito(a) no CPF/CNPJ sob o nº {client.clientDocument}, a
+          importância de {priceFormatted}, referente ao pagamento pelos serviços de {serviceText} realizados no
+          seguinte equipamento:
         </p>
-        <p style={{ margin: "0 0 28px" }}>
-          <strong>CPF/CNPJ:</strong> {client.clientDocument}
-        </p>
-
-        <p style={{ margin: "0 0 16px" }}>Referente ao PAGAMENTO PARCIAL (SINAL DE 50% DO VALOR TOTAL) para início do serviço no item abaixo descrito:</p>
 
         <ul
           style={{
@@ -96,21 +93,18 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
           }}
         >
           <li style={listItem}>
-            <span style={{ marginRight: "8px", fontWeight: 700 }}>*</span>
-            <strong>EQUIPAMENTO:</strong> {client.equipmentType}
+            <strong>Equipamento:</strong> {client.equipmentType || "—"}
           </li>
           <li style={listItem}>
-            <span style={{ marginRight: "8px", fontWeight: 700 }}>*</span>
-            <strong>MARCA/MODELO:</strong> {formatMarcaModelo(client.brand, client.model)}
+            <strong>Marca/Modelo:</strong> {formatMarcaModelo(client.brand, client.model)}
           </li>
           <li style={{ ...listItem, marginBottom: 0 }}>
-            <span style={{ marginRight: "8px", fontWeight: 700 }}>*</span>
-            <strong>Nº DE SÉRIE:</strong> {client.serialNumber || "—"}
+            <strong>Número de Série:</strong> {client.serialNumber || "—"}
           </li>
         </ul>
 
         <p style={{ margin: "0 0 36px", textAlign: "justify" }}>
-          Damos, por meio deste, quitação exclusivamente do valor acima mencionado, restando o saldo de R$ (valor_restante) a ser pago na entrega do serviço.
+          Pelo presente, damos plena e geral quitação pelo serviço acima descrito.
         </p>
 
         <p style={{ margin: "0 0 48px" }}>{dateLine}</p>

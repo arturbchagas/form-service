@@ -6,6 +6,8 @@ export type ReceiptClientPayload = {
   clientDocument: string;
   city: string;
   state: string;
+  /** Descrição do serviço pago (ex.: manutenção, conserto, instalação). */
+  serviceDescription: string;
   equipmentType: string;
   brand: string;
   model: string;
