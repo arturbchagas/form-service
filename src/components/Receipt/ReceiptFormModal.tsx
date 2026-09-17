@@ -18,6 +18,7 @@ function buildDefaults(item: FormItem): ReceiptClientPayload {
     clientDocument: "",
     city: RECEIPT_ISSUER_DEFAULT_LOCATION.city,
     state: RECEIPT_ISSUER_DEFAULT_LOCATION.state,
+    serviceDescription: "",
     equipmentType: item.aparelho?.trim() || "",
     brand: item.brand?.trim() || "",
     model: item.model?.trim() || "",
@@ -55,7 +56,7 @@ export default function ReceiptFormModal({ item, onClose, onConfirm }: ReceiptFo
     }
 
     if (!form.clientName.trim()) {
-      setError("Informe o nome de quem pagou (Recebemos de).");
+      setError("Informe o nome do cliente ou da empresa.");
       return;
     }
     if (!form.clientDocument.trim()) {
@@ -64,6 +65,10 @@ export default function ReceiptFormModal({ item, onClose, onConfirm }: ReceiptFo
     }
     if (!form.city.trim() || !form.state.trim()) {
       setError("Informe cidade e estado para a data do recibo.");
+      return;
+    }
+    if (!form.serviceDescription.trim()) {
+      setError("Informe o serviço realizado (ex.: manutenção, conserto, instalação).");
       return;
     }
     if (!form.equipmentType.trim()) {
@@ -76,6 +81,7 @@ export default function ReceiptFormModal({ item, onClose, onConfirm }: ReceiptFo
       clientDocument: form.clientDocument.trim(),
       city: form.city.trim(),
       state: form.state.trim(),
+      serviceDescription: form.serviceDescription.trim(),
       equipmentType: form.equipmentType.trim(),
       brand: form.brand.trim(),
       model: form.model.trim(),
@@ -115,7 +121,7 @@ export default function ReceiptFormModal({ item, onClose, onConfirm }: ReceiptFo
           <p className={styles.sectionLabel}>Dados do cliente no recibo</p>
           <div className={styles.grid}>
             <div className={`${styles.field} ${styles.fieldFull}`}>
-              <label htmlFor="rc-name">Recebemos de</label>
+              <label htmlFor="rc-name">Nome do cliente ou empresa</label>
               <input
                 id="rc-name"
                 value={form.clientName}
@@ -159,6 +165,15 @@ export default function ReceiptFormModal({ item, onClose, onConfirm }: ReceiptFo
             Item descrito no recibo
           </p>
           <div className={styles.grid}>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="rc-service">Serviço realizado</label>
+              <input
+                id="rc-service"
+                value={form.serviceDescription}
+                onChange={(e) => update("serviceDescription", e.target.value)}
+                placeholder="Ex.: manutenção, conserto, instalação"
+              />
+            </div>
             <div className={`${styles.field} ${styles.fieldFull}`}>
               <label htmlFor="rc-equip">Equipamento</label>
               <input
