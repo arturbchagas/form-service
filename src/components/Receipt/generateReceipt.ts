@@ -1,6 +1,22 @@
 import { FormItem } from "../../types/Form-itens/FormItem";
 import type { ReceiptClientPayload } from "./receiptTypes";
 
+function receiptPdfFileName(item: FormItem, client: ReceiptClientPayload): string {
+  const clientLabel =
+    item.name?.trim() ||
+    item.empresa?.trim() ||
+    client.clientName.trim() ||
+    `OS-${item.id}`;
+
+  const safeName = clientLabel
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 100);
+
+  return `recibo-${safeName || `OS-${item.id}`}.pdf`;
+}
+
 export async function generateReceiptPDF(
   item: FormItem,
   client: ReceiptClientPayload
@@ -81,7 +97,7 @@ export async function generateReceiptPDF(
       pdf.addImage(imgData, "PNG", offsetX, 0, scaledWidth, pdfHeight);
     }
 
-    pdf.save(`recibo-OS-${item.id}.pdf`);
+    pdf.save(receiptPdfFileName(item, client));
   } finally {
     root.unmount();
     document.body.removeChild(container);

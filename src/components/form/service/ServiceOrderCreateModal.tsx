@@ -168,7 +168,7 @@ export default function ServiceOrderCreateModal({
       </button>
 
       {open && (
-        <div className={styles.overlay} onClick={handleClose}>
+        <div className={styles.overlay}>
           <div
             className={styles.modal}
             onClick={(e) => e.stopPropagation()}
