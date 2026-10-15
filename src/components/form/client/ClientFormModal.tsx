@@ -75,7 +75,7 @@ export default function ClientFormModal({
   }
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         <div className={styles.header}>
           <h2 className={styles.title}>{isEdit ? "Editar cliente" : "Cadastrar cliente"}</h2>
